@@ -1,9 +1,11 @@
+#!env python3
+
 import os
 import platform
 import getpass
 import json
 import requests
-import jpype
+from jpype import *
 from tqdm import tqdm
 from urllib.request import urlopen
 
@@ -104,13 +106,14 @@ if data['firmwares'][int(firmwareid) - 1]['version'][0] == "6":
 print("Continuing.")
 downloadlink = data['firmwares'][int(firmwareid) - 1]['url']
 md5sum = data['firmwares'][int(firmwareid) - 1]['md5sum']
+firmwareversion = data['firmwares'][int(firmwareid) - 1]['version']
 print("Download URL: " + downloadlink)
 print("Downloader: Downloading firmware")
 print("Downloader: Info")
 print("Downloader: Firmware Build " + data['firmwares'][int(firmwareid) - 1]['buildid'])
 print("Downloader:          md5hash " + md5sum)
 print("Downloader: Start downloading")
-r = requests.get(downloadlink, stream=True)
+#r = requests.get(downloadlink, stream=True)
 
 #with open(os.path.basename(downloadlink), 'wb') as f:
 #    file_size = int(r.headers["content-length"])
@@ -122,12 +125,24 @@ r = requests.get(downloadlink, stream=True)
 #            pbar.update(chunk_size)
 print("Downloader: Download complete")
 print("iOSUtils: Initializing JAVA environment.")
-jvm_path = jpype.getDefaultJVMPath()
+jvm_path = getDefaultJVMPath()
 print("iOSUtils: JVM Path: " + jvm_path)
-if not jpype.isJVMStarted():
-    jpype.startJVM(jvm_path, "-ea", "-Djava.class.path=%s" % "iOSUtils.jar")
-Utils = jpype.JClass("Utils.Utils")
-KeyTypes = jpype.JClass("KeyTypes")
+if not isJVMStarted():
+    startJVM(jvm_path, "-ea", "-Djava.class.path=" + os.path.join(os.path.abspath("."), "iOSUtils.jar"))
+java.lang.System.out.println("If you see this message, that means JVM works well.")
+print("iOSUtils: importing CA certificate")
+java.lang.System.setProperty("javax.net.ssl.trustStore", "jssecacerts")
+# Set keystore password
+java.lang.System.setProperty("javax.net.ssl.trustStorePassword", "changeit");
+# Set proxy settings (Chinese users may need that)
+java.lang.System.setProperty("http.proxyHost", "127.0.0.1")
+java.lang.System.setProperty("http.proxyPort", "8087")
+java.lang.System.setProperty("https.proxyHost", "127.0.0.1")
+java.lang.System.setProperty("https.proxyPort", "8087")
+print("iOSUtils: importing JAVA class")
+Utils = JClass("Utils")
+KeyTypes = JClass("KeyTypes")
 utils_class = Utils()
-keytypes_class = KeyTypes()
-utils_class.getKeyFor("iPad3,1", "8.4.1", keytypes_class.KERNELCACHE).getKey()
+print("iOSUtils: Getting key for version " + firmwareversion + ", device " + deviceidentifier)
+ibss_key = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.IBSS).getKey()
+print(ibss_key)
