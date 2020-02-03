@@ -5,9 +5,12 @@ import platform
 import getpass
 import json
 import requests
+import zipfile
+import hashlib
 from jpype import *
 from tqdm import tqdm
 from urllib.request import urlopen
+from biplist import *
 
 ua = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0'}
 
@@ -17,13 +20,15 @@ unknown = 1
 print("-> OS Platform: " + osplatform)
 if osplatform == "Darwin":
     print("--> Apple OSX: Supported!")
-    unknown = 0 
+    unknown = 0
+    osplatformname = "macosx"
 if osplatform == "Windows":
     print("--> Windows Operating System: Not Supported!")
     print("exiting")
     exit(1)
 if osplatform == "Linux":
     print("--> Linux: Supported!")
+    osplatformname = "linux"
     unknown = 0
 if unknown == 1:
     print("--> Unknown platform " + osplatform + ".")
@@ -37,7 +42,7 @@ print("This is a tethered downgrade tool. using this     ")
 print("script is VERY RISKY because there are            ")
 print("partitioning and restoring operation in the       ")
 print("script. Please make sure there is no IMPORTANT    ")
-print("DATA in your device. We won't be responible for   ")
+print("DATA in your device. We won't be responsible for  ")
 print("DATA LOSS and DEVICE DAMAGE when you agree using  ")
 print("this script.                                      ")
 print("               IMPORTANT MESSAGE                  ")
@@ -103,27 +108,52 @@ if data['firmwares'][int(firmwareid) - 1]['version'][0] == "5":
 if data['firmwares'][int(firmwareid) - 1]['version'][0] == "6":
     print("iOS 6 is not supported yet! exiting.")
     exit(1)
-print("Continuing.")
+print("                    PART II                       ")
+print("Executing pre-downgrade operation")
 downloadlink = data['firmwares'][int(firmwareid) - 1]['url']
 md5sum = data['firmwares'][int(firmwareid) - 1]['md5sum']
 firmwareversion = data['firmwares'][int(firmwareid) - 1]['version']
+firmwarefile = os.path.basename(downloadlink)
 print("Download URL: " + downloadlink)
-print("Downloader: Downloading firmware")
-print("Downloader: Info")
-print("Downloader: Firmware Build " + data['firmwares'][int(firmwareid) - 1]['buildid'])
-print("Downloader:          md5hash " + md5sum)
-print("Downloader: Start downloading")
-#r = requests.get(downloadlink, stream=True)
+print("Checking if it is exist")
+if os.path.exists(os.path.join(os.path.abspath("."),firmwarefile))==False:
+    print("Downloader: Downloading firmware")
+    print("Downloader: Info")
+    print("Downloader: Firmware Build " + data['firmwares'][int(firmwareid) - 1]['buildid'])
+    print("Downloader:          md5hash " + md5sum)
+    print("Downloader: Start downloading")
+    r = requests.get(downloadlink, stream=True)
+    with open(os.path.basename(downloadlink), 'wb') as f:
+        file_size = int(r.headers["content-length"])
+        chunk_size = 1000
+        with tqdm(ncols=100, desc="Downloader: Fetching " + os.path.basename(downloadlink), total=file_size, unit_scale=True) as pbar:
+            # 1k for chunk_size, since Ethernet packet size is around 1500 bytes
+            for chunk in r.iter_content(chunk_size=chunk_size):
+                f.write(chunk)
+                pbar.update(chunk_size)
+    print("Downloader: Download complete")
+else:
+    print("Firmware already exists!")
+print("Hashing firmware.")
+#m = hashlib.md5()
+#with open(firmwarefile, "rb") as fobj:
+#    while True:
+#        data = fobj.read(4096)
+#        if not data:
+#            break
+#        m.update(data)
+#if m.hexdigest() != md5sum:
+#    print("Firmware hash invalid! Should be " + md5sum + ", got " + m.hexdigest())
+#    print("Exiting")
+#    exit(1)
 
-#with open(os.path.basename(downloadlink), 'wb') as f:
-#    file_size = int(r.headers["content-length"])
-#    chunk_size = 1000
-#    with tqdm(ncols=100, desc="Downloader: Fetching " + os.path.basename(downloadlink), total=file_size, unit_scale=True) as pbar:
-#        # 1k for chunk_size, since Ethernet packet size is around 1500 bytes
-#        for chunk in r.iter_content(chunk_size=chunk_size):
-#            f.write(chunk)
-#            pbar.update(chunk_size)
-print("Downloader: Download complete")
+print("Continuing.")
+print("Extracting firmware...")
+#file = zipfile.ZipFile(firmwarefile)
+#if os.path.exists(os.path.join(os.path.abspath("."),"firmware")) == False:
+#    os.mkdir("firmware")
+#file.extractall("firmware")
+print("Successfully extracted")
 print("iOSUtils: Initializing JAVA environment.")
 jvm_path = getDefaultJVMPath()
 print("iOSUtils: JVM Path: " + jvm_path)
@@ -143,6 +173,67 @@ print("iOSUtils: importing JAVA class")
 Utils = JClass("Utils")
 KeyTypes = JClass("KeyTypes")
 utils_class = Utils()
-print("iOSUtils: Getting key for version " + firmwareversion + ", device " + deviceidentifier)
+print("iOSUtils: Getting iBSS key for version " + firmwareversion + ", device " + deviceidentifier)
 ibss_key = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.IBSS).getKey()
-print(ibss_key)
+print("iOSUtils: Getting iBEC key for version " + firmwareversion + ", device " + deviceidentifier)
+ibec_key = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.IBEC).getKey()
+print("iOSUtils: Getting AppleLogo key for version " + firmwareversion + ", device " + deviceidentifier)
+applelogo_key = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.APPLE_LOGO).getKey()
+print("iOSUtils: Getting DeviceTree key for version " + firmwareversion + ", device " + deviceidentifier)
+devicetree_key = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.DEVICETREE).getKey()
+print("iOSUtils: Getting RootFS key for version " + firmwareversion + ", device " + deviceidentifier)
+rootfs_key = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.ROOTFS).getKey()
+print("iOSUtils: Getting iBSS IV for version " + firmwareversion + ", device " + deviceidentifier)
+ibss_iv = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.IBSS).getIv()
+print("iOSUtils: Getting iBEC IV for version " + firmwareversion + ", device " + deviceidentifier)
+ibec_iv = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.IBEC).getIv()
+print("iOSUtils: Getting AppleLogo IV for version " + firmwareversion + ", device " + deviceidentifier)
+applelogo_iv = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.APPLE_LOGO).getIv()
+print("iOSUtils: Getting DeviceTree IV for version " + firmwareversion + ", device " + deviceidentifier)
+devicetree_iv = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.DEVICETREE).getIv()
+print("      iBSS Key: " + ibss_key)
+print("            IV: " + ibss_iv)
+print("      iBEC Key: " + ibec_key)
+print("            IV: " + ibec_iv)
+print(" AppleLogo Key: " + applelogo_key)
+print("            IV: " + applelogo_iv)
+print("DeviceTree Key: " + devicetree_key)
+print("            IV: " + devicetree_iv)
+print("    RootFS Key: " + rootfs_key)
+print("JVM: Shutdown")
+shutdownJVM()
+print("Next we will decrypt firmware files. Your screen will display a lot of text.")
+print("That's normal! When finished, you need to connect your device with a USB cable.")
+input("ENTER to continue!")
+print("xpwntool: decrypting iBSS")
+os.system("cd " + os.path.abspath(".") + "; " +
+          "./tool/" + osplatformname + "/xpwntool ./firmware/Firmware/dfu/iBSS.*.dfu iBSS.decrypted.dfu -key " + ibss_key +
+          " -iv " + ibss_iv)
+print("xpwntool: decrypting iBEC")
+os.system("cd " + os.path.abspath(".") + "; " +
+          "./tool/" + osplatformname + "/xpwntool ./firmware/Firmware/dfu/iBEC.*.dfu iBEC.decrypted.dfu -key " + ibec_key +
+          " -iv " + ibec_iv)
+print("xpwntool: decrypting AppleLogo")
+os.system("cd " + os.path.abspath(".") + "; " +
+          "./tool/" + osplatformname + "/xpwntool ./firmware/Firmware/all_flash/*/" +
+          "applelogo.*.img3 applelogo.decrypted.img3 -key " + applelogo_key +
+          " -iv " + applelogo_iv)
+print("xpwntool: decrypting DeviceTree")
+os.system("cd " + os.path.abspath(".") + "; " +
+          "./tool/" + osplatformname + "/xpwntool ./firmware/Firmware/all_flash/*/" +
+          "DeviceTree.*.img3 DeviceTree.decrypted.img3 -key " + devicetree_key +
+          " -iv " + devicetree_iv)
+print("Reading Restore.plist")
+plist = readPlist("firmware/Restore.plist")
+rootfsfile = plist['SystemRestoreImages']['User']
+print("RootFS: " + rootfsfile)
+print("Decrypting RootFileSystem")
+newfile = rootfsfile.split(".")[0] + ".decrypted.dmg"
+os.system("cd " + os.path.abspath(".") + "; " +
+          "./tool/" + osplatformname + "/dmg extract ./firmware/" + rootfsfile + " " +
+          newfile + " -k " + rootfs_key)
+if osplatformname == "macosx":
+    print("hdiutil: converting format")
+    os.system("cd " + os.path.abspath(".") + "; " +
+              "hdiutil convert -format UDZO " + newfile + " -o " + rootfsfile)
+    print("ASR: Scanning image")
