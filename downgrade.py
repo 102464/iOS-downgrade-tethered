@@ -237,3 +237,24 @@ if osplatformname == "macosx":
     os.system("cd " + os.path.abspath(".") + "; " +
               "hdiutil convert -format UDZO " + newfile + " -o " + rootfsfile)
     print("ASR: Scanning image")
+    ret = os.system("cd " + os.path.abspath(".") + "; " +
+                    "asr -imagescan " + rootfsfile)
+    if ret > 0:
+        print("ERROR: Image scan did not passed.")
+        print("exiting")
+        exit(ret)
+if osplatformname == "linux":
+    print("dmg: converting image")
+    os.system("cd " + os.path.abspath(".") + "; " +
+              "./tool/" + osplatformname + "/dmg build " + newfile + " " + rootfsfile)
+    print("WARNING: on linux there will not be a image scan.")
+    print("         please make sure image is not corrupted.")
+print("iBoot32Patcher: Patching iBSS")
+os.system("cd " + os.path.abspath(".") + "; " +
+          "./tool/" + osplatformname + "/iBoot32Patcher iBSS.decrypted.dfu pwnediBSS")
+print("iBoot32Patcher: Patching iBEC")
+os.system("cd " + os.path.abspath(".") + "; " +
+          "./tool/" + osplatformname + "/iBoot32Patcher iBEC.decrypted.dfu pwnediBEC -b \"rd=disk0s1s1 -v\"")
+print("Part II already prepared.")
+print("                   PART III                       ")
+print("Please connect your device with a USB cable.")

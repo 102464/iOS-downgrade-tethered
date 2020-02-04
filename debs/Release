@@ -1,0 +1,6 @@
+Origin: Downgrade repositor
+Label: downgrade-tools
+Version: 1
+Architectures: iphoneos-arm
+Components: main
+Description: This repository is created by downgrade-tools. Please install these packages according to the instructions on the screen.

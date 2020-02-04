@@ -1,0 +1,33 @@
+Package: com.nyansatan.dualbootstuff
+Version: 1.0.7a
+Architecture: iphoneos-arm
+Maintainer: Nyan Satan
+Installed-Size: 2749
+Filename: dualbootstuff.deb
+Size: 1320838
+MD5sum: 807c78307f99e7483a611a1d7a54901a
+SHA1: 48f75eeaa81e66416d5d5879c8538b14469b7a86
+SHA256: 5709a3b954cd330cf9b7b02900dcddcab2ca038f9fac75cdf385609fdc829c8c
+Section: System
+Description: Dualboot tools
+Author: @danzatt, @winocm, @xerub, @JonathanSeals, @axi0mX, @Apple, @comex, Roderick W. Smith, people behind iphone-dataprotection project, @nyan_satan
+Depiction: http://nyansatan.github.io/apt/depictions/dualbootstuff.html
+Name: dualbootstuff
+
+Package: openssh
+Version: 6.7p1-13
+Architecture: iphoneos-arm
+Maintainer: Jay Freeman (saurik)
+Filename: openssh_6.7p1-13_iphoneos-arm.deb 
+Section: System
+Description: OpenSSH is the premier connectivity tool for remote login with the SSH protocol. It encrypts all traffic to eliminate eavesdropping, connection hijacking, and other attacks. In addition, OpenSSH provides a large suite of secure tunneling capabilities, several authentication methods, and sophisticated configuration options.
+Name: OpenSSH
+
+Package: openssl
+Section: Security
+Installed-Size: 6164
+Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
+Architecture: iphoneos-arm
+Version: 0.9.8zg-13
+Description: SSL library and cryptographic tools
+Name: OpenSSL
