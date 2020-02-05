@@ -1,22 +1,47 @@
-#!env python3
+#!/usr/bin/env python3
 
 import os
+import sys
 import platform
 import getpass
 import json
 import requests
+import socket
+import subprocess
 import zipfile
 import hashlib
+import paramiko
+import scpclient
+
 from jpype import *
 from tqdm import tqdm
 from urllib.request import urlopen
 from biplist import *
 
-ua = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0'}
+
+def testssh(sshobj):
+    try:
+        sshobj.connect(
+            hostname="127.0.0.1",
+            port=2222,
+            username="root",
+            password=sshpass
+        )
+        return sshobj
+    except:
+        testssh(sshobj)
+
 
 print("Running System Environment Check")
+ver = sys.version_info
 osplatform = platform.system()
 unknown = 1
+print("-> Python Version: " + sys.version)
+if ver < (3, 0):
+    print("--> version < 3.0: Not Supported!")
+    print("Exiting")
+    exit(1)
+print("--> version >= 3.0: Supported!")
 print("-> OS Platform: " + osplatform)
 if osplatform == "Darwin":
     print("--> Apple OSX: Supported!")
@@ -94,7 +119,8 @@ totalnum = len(data['firmwares'])
 print("API: total " + str(totalnum) + " firmwares")
 print(" ID               Firmware List                   ")
 for i in range(0, totalnum - 1):
-    print(" " + str(i + 1) + "                   " + data['firmwares'][i]['version'])
+    print(" " + str(i + 1) + "               " + data['firmwares'][i]['version'] + " (" +
+          data['firmwares'][i]['buildid'] + ")")
 firmwareid = input("Enter ID: ")
 if str(firmwareid).isdigit() == False:
     print("Invalid selection: Not a number. exiting.")
@@ -147,7 +173,6 @@ print("Hashing firmware.")
 #    print("Exiting")
 #    exit(1)
 
-print("Continuing.")
 print("Extracting firmware...")
 #file = zipfile.ZipFile(firmwarefile)
 #if os.path.exists(os.path.join(os.path.abspath("."),"firmware")) == False:
@@ -207,42 +232,45 @@ print("That's normal! When finished, you need to connect your device with a USB 
 input("ENTER to continue!")
 print("xpwntool: decrypting iBSS")
 os.system("cd " + os.path.abspath(".") + "; " +
-          "./tool/" + osplatformname + "/xpwntool ./firmware/Firmware/dfu/iBSS.*.dfu iBSS.decrypted.dfu -key " + ibss_key +
+          "./tool/" + osplatformname + "/xpwntool ./firmware/Firmware/dfu/iBSS.*.dfu iBSS.decrypted.dfu -k " + ibss_key +
           " -iv " + ibss_iv)
 print("xpwntool: decrypting iBEC")
 os.system("cd " + os.path.abspath(".") + "; " +
-          "./tool/" + osplatformname + "/xpwntool ./firmware/Firmware/dfu/iBEC.*.dfu iBEC.decrypted.dfu -key " + ibec_key +
+          "./tool/" + osplatformname + "/xpwntool ./firmware/Firmware/dfu/iBEC.*.dfu iBEC.decrypted.dfu -k " + ibec_key +
           " -iv " + ibec_iv)
 print("xpwntool: decrypting AppleLogo")
 os.system("cd " + os.path.abspath(".") + "; " +
           "./tool/" + osplatformname + "/xpwntool ./firmware/Firmware/all_flash/*/" +
-          "applelogo.*.img3 applelogo.decrypted.img3 -key " + applelogo_key +
+          "applelogo*.img3 applelogo.decrypted.img3 -k " + applelogo_key +
           " -iv " + applelogo_iv)
 print("xpwntool: decrypting DeviceTree")
 os.system("cd " + os.path.abspath(".") + "; " +
           "./tool/" + osplatformname + "/xpwntool ./firmware/Firmware/all_flash/*/" +
-          "DeviceTree.*.img3 DeviceTree.decrypted.img3 -key " + devicetree_key +
+          "DeviceTree.*.img3 DeviceTree.decrypted.img3 -k " + devicetree_key +
           " -iv " + devicetree_iv)
 print("Reading Restore.plist")
 plist = readPlist("firmware/Restore.plist")
 rootfsfile = plist['SystemRestoreImages']['User']
 print("RootFS: " + rootfsfile)
 print("Decrypting RootFileSystem")
+input("Test")
+pass
 newfile = rootfsfile.split(".")[0] + ".decrypted.dmg"
 os.system("cd " + os.path.abspath(".") + "; " +
           "./tool/" + osplatformname + "/dmg extract ./firmware/" + rootfsfile + " " +
           newfile + " -k " + rootfs_key)
 if osplatformname == "macosx":
-    print("hdiutil: converting format")
-    os.system("cd " + os.path.abspath(".") + "; " +
-              "hdiutil convert -format UDZO " + newfile + " -o " + rootfsfile)
-    print("ASR: Scanning image")
-    ret = os.system("cd " + os.path.abspath(".") + "; " +
-                    "asr -imagescan " + rootfsfile)
-    if ret > 0:
-        print("ERROR: Image scan did not passed.")
-        print("exiting")
-        exit(ret)
+    #print("hdiutil: converting format")
+    #os.system("cd " + os.path.abspath(".") + "; " +
+    #          "hdiutil convert -format UDZO " + newfile + " -o " + rootfsfile)
+    #print("ASR: Scanning image")
+    #ret = os.system("cd " + os.path.abspath(".") + "; " +
+    #                "asr -imagescan " + rootfsfile)
+    #if ret > 0:
+    #    print("ERROR: Image scan did not passed.")
+    #    print("exiting")
+    #    exit(ret)
+    pass
 if osplatformname == "linux":
     print("dmg: converting image")
     os.system("cd " + os.path.abspath(".") + "; " +
@@ -255,6 +283,32 @@ os.system("cd " + os.path.abspath(".") + "; " +
 print("iBoot32Patcher: Patching iBEC")
 os.system("cd " + os.path.abspath(".") + "; " +
           "./tool/" + osplatformname + "/iBoot32Patcher iBEC.decrypted.dfu pwnediBEC -b \"rd=disk0s1s1 -v\"")
+os.remove(newfile)
 print("Part II already prepared.")
 print("                   PART III                       ")
-print("Please connect your device with a USB cable.")
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(('8.8.8.8', 80))
+ip = s.getsockname()[0]
+s.close()
+os.system("cd " + os.path.abspath("./debs") + "; " +
+          "nohup python -m SimpleHTTPServer & >/dev/null 2>/dev/null")
+print("Waiting for device connection")
+cmd = ['lsof', '-i', ':8000']
+pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout
+output = pipe.read()
+output = str(output, encoding = "utf-8")
+serverpid = output.split("\n")[1].split(" ")[2]
+print("HTTP PID: " + serverpid)
+os.system("nohup ./usbmux/tcprelay.py -t 22:2222 & >/dev/null 2>/dev/null")
+ssh = paramiko.SSHClient()
+known_host = paramiko.AutoAddPolicy()
+ssh.set_missing_host_key_policy(known_host)
+print("Open Cydia, add source http://" + ip + ":8888, install OpenSSH, then")
+print("please connect your device with a USB cable.")
+ssh = testssh(ssh)
+print("Sending downgrade-required tools")
+with scpclient.closing(scpclient.Write(ssh.get_transport(), remote_path="/tmp/")) as scp:
+    scp.send_file("./debs/com.coolbooter.coolbootercli_1.1-beta1-release.deb",
+                  preserve_times=True, remote_filename="coolbooter.deb")
+print("Installing required packages.")
+ssh.exec_command("dpkg -i /tmp/coolbooter.deb")

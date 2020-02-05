@@ -1,9 +1,24 @@
+Package: com.coolbooter.coolbootercli
+Version: 1.1-beta1-release
+Architecture: iphoneos-arm
+Maintainer: CoolBooter <coolbooterios@gmail.com>
+Depends: xpwn, zip, unzip, ldid, diskdev-cmds, wget, firmware (>= 5.0)
+Filename: ./com.coolbooter.coolbootercli_1.1-beta1-release.deb
+Size: 15519779
+MD5sum: 52d3050c6fcbacfa27d4db68530df38c
+SHA1: b073f01e203b0b704696aa820ea6c3037fa84f34
+SHA256: 35cfca1b683f81792c2e558c526dc483d971fcd6b54d80dc49893220e99dc45a
+Section: System
+Description: CoolBooter is an all-in-one dual booting utility for jailbroken 32 bit iOS devices.
+Author: CoolBooter <coolbooterios@gmail.com>
+Name: CoolBooter CLI
+
 Package: com.nyansatan.dualbootstuff
 Version: 1.0.7a
 Architecture: iphoneos-arm
 Maintainer: Nyan Satan
 Installed-Size: 2749
-Filename: dualbootstuff.deb
+Filename: ./dualbootstuff.deb
 Size: 1320838
 MD5sum: 807c78307f99e7483a611a1d7a54901a
 SHA1: 48f75eeaa81e66416d5d5879c8538b14469b7a86
@@ -17,17 +32,34 @@ Name: dualbootstuff
 Package: openssh
 Version: 6.7p1-13
 Architecture: iphoneos-arm
-Maintainer: Jay Freeman (saurik)
-Filename: openssh_6.7p1-13_iphoneos-arm.deb 
-Section: System
-Description: OpenSSH is the premier connectivity tool for remote login with the SSH protocol. It encrypts all traffic to eliminate eavesdropping, connection hijacking, and other attacks. In addition, OpenSSH provides a large suite of secure tunneling capabilities, several authentication methods, and sophisticated configuration options.
+Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
+Installed-Size: 4736
+Pre-Depends: dpkg (>= 1.14.25-8)
+Depends: openssl
+Filename: ./openssh_6.7p1-13_iphoneos-arm.deb
+Size: 587678
+MD5sum: 51b3398d67bc3b861642c1eff23f9e42
+SHA1: 0312d429110829359f7443adbfbb27cb1f9419d5
+SHA256: ff4eb2a1e4453051e52ba56a71c3d4f56d00c1e83095653647a7a4f49b4c3b1f
+Section: Networking
+Priority: important
+Description: secure remote access between machines
+Depiction: http://cydia.saurik.com/info/openssh/
 Name: OpenSSH
 
 Package: openssl
-Section: Security
-Installed-Size: 6164
-Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
-Architecture: iphoneos-arm
 Version: 0.9.8zg-13
+Architecture: iphoneos-arm
+Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
+Installed-Size: 6164
+Pre-Depends: dpkg (>= 1.14.25-8)
+Filename: ./openssl_0.9.8zg-13_iphoneos-arm.deb
+Size: 1031128
+MD5sum: 405f8d4c91aab0cf85e6f8ad93b8ab30
+SHA1: 3aedf9d8393b7c8a426840223625a601dd7d089d
+SHA256: 0e57f4b5968fc32c1fb56c1361d163a1ffdcda9173145551aff839cfc19be664
+Section: Security
+Priority: standard
 Description: SSL library and cryptographic tools
 Name: OpenSSL
+
