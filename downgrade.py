@@ -10,17 +10,24 @@ import socket
 import subprocess
 import zipfile
 import hashlib
+import time
 import paramiko
-import scpclient
+import signal
 
+from scp import SCPClient
 from jpype import *
 from tqdm import tqdm
 from urllib.request import urlopen
 from biplist import *
 
+x = 0
+serverpid = ""
+usbmuxpid = ""
 
 def testssh(sshobj):
+    global x
     try:
+        time.sleep(10)
         sshobj.connect(
             hostname="127.0.0.1",
             port=2222,
@@ -29,9 +36,26 @@ def testssh(sshobj):
         )
         return sshobj
     except:
-        testssh(sshobj)
+        x = x + 1
+        if x == 10:
+            print("USB Connection failure: No device connected " +
+                  "after 100 seconds' timeout. Exiting.")
+            exit(1)
+        else:
+            testssh(sshobj)
 
 
+def sigint_handler(signum, frame):
+    print("Signal caught, cleaning up")
+    if serverpid != "":
+        os.kill(int(serverpid), signal.SIGKILL)
+    if usbmuxpid != "":
+        os.kill(int(usbmuxpid), signal.SIGKILL)
+    sys.exit(1)
+
+
+print("Adding SIGINT Handler")
+signal.signal(signal.SIGINT, sigint_handler)
 print("Running System Environment Check")
 ver = sys.version_info
 osplatform = platform.system()
@@ -44,7 +68,7 @@ if ver < (3, 0):
 print("--> version >= 3.0: Supported!")
 print("-> OS Platform: " + osplatform)
 if osplatform == "Darwin":
-    print("--> Apple OSX: Supported!")
+    print("--> Apple macOS: Supported!")
     unknown = 0
     osplatformname = "macosx"
 if osplatform == "Windows":
@@ -104,6 +128,36 @@ if devicenum == "1":
 else:
     print("Invalid device ID. exiting.")
     exit(1)
+print(" ID                 STORAGE                       ")
+print(" 1                    16G                         ")
+print(" 2                    32G                         ")
+print(" 3                    64G                         ")
+print(" 4                   128G                         ")
+storageid = input("Enter ID: ")
+if storageid == "1":
+    print("Warning! 16G devices is reported that it may have issues about free space.")
+    print("         So we suggest that you should erase all data on your device.")
+    print("         If you have no data on your device or you think there are enough space")
+    print("         (at least 9GB), please enter Y. If you don't want to downgrade or you")
+    print("         want to erase all data on your device, enter N.")
+    choice = input("Y/N: ")
+    if choice == "Y":
+        storage = 16
+    else:
+        print("exiting")
+        exit(1)
+else:
+    if storageid == "2":
+        storage = 32
+    else:
+        if storageid == "3":
+            storage = 64
+        else:
+            if storageid == "4":
+                storage = 128
+            else:
+                print("Invalid selection. Exiting.")
+                exit(1)
 print("API: Downloading device information.")
 if os.path.exists("firmware-api.json") == False:
     apiurl = "http://api.ipsw.me/v4"
@@ -152,7 +206,7 @@ if os.path.exists(os.path.join(os.path.abspath("."),firmwarefile))==False:
     with open(os.path.basename(downloadlink), 'wb') as f:
         file_size = int(r.headers["content-length"])
         chunk_size = 1000
-        with tqdm(ncols=100, desc="Downloader: Fetching " + os.path.basename(downloadlink), total=file_size, unit_scale=True) as pbar:
+        with tqdm(ncols=100, desc="Downloader: Fetching Firmware", total=file_size, unit_scale=True) as pbar:
             # 1k for chunk_size, since Ethernet packet size is around 1500 bytes
             for chunk in r.iter_content(chunk_size=chunk_size):
                 f.write(chunk)
@@ -161,20 +215,20 @@ if os.path.exists(os.path.join(os.path.abspath("."),firmwarefile))==False:
 else:
     print("Firmware already exists!")
 print("Hashing firmware.")
-#m = hashlib.md5()
+# = hashlib.md5()
 #with open(firmwarefile, "rb") as fobj:
 #    while True:
 #        data = fobj.read(4096)
-#        if not data:
+#       if not data:
 #            break
-#        m.update(data)
+#       m.update(data)
 #if m.hexdigest() != md5sum:
 #    print("Firmware hash invalid! Should be " + md5sum + ", got " + m.hexdigest())
 #    print("Exiting")
 #    exit(1)
 
 print("Extracting firmware...")
-#file = zipfile.ZipFile(firmwarefile)
+file = zipfile.ZipFile(firmwarefile)
 #if os.path.exists(os.path.join(os.path.abspath("."),"firmware")) == False:
 #    os.mkdir("firmware")
 #file.extractall("firmware")
@@ -253,24 +307,23 @@ plist = readPlist("firmware/Restore.plist")
 rootfsfile = plist['SystemRestoreImages']['User']
 print("RootFS: " + rootfsfile)
 print("Decrypting RootFileSystem")
-input("Test")
+#input("Test")
 pass
 newfile = rootfsfile.split(".")[0] + ".decrypted.dmg"
-os.system("cd " + os.path.abspath(".") + "; " +
-          "./tool/" + osplatformname + "/dmg extract ./firmware/" + rootfsfile + " " +
-          newfile + " -k " + rootfs_key)
+#os.system("cd " + os.path.abspath(".") + "; " +
+#          "./tool/" + osplatformname + "/dmg extract ./firmware/" + rootfsfile + " " +
+#          newfile + " -k " + rootfs_key)
 if osplatformname == "macosx":
-    #print("hdiutil: converting format")
-    #os.system("cd " + os.path.abspath(".") + "; " +
-    #          "hdiutil convert -format UDZO " + newfile + " -o " + rootfsfile)
-    #print("ASR: Scanning image")
-    #ret = os.system("cd " + os.path.abspath(".") + "; " +
-    #                "asr -imagescan " + rootfsfile)
-    #if ret > 0:
-    #    print("ERROR: Image scan did not passed.")
-    #    print("exiting")
-    #    exit(ret)
-    pass
+    print("hdiutil: converting format")
+#    os.system("cd " + os.path.abspath(".") + "; " +
+#              "hdiutil convert -format UDZO " + newfile + " -o " + rootfsfile)
+    print("ASR: Scanning image")
+#    ret = os.system("cd " + os.path.abspath(".") + "; " +
+#                    "asr -imagescan " + rootfsfile)
+#    if ret > 0:
+#        print("ERROR: Image scan did not passed.")
+#        print("exiting")
+#        exit(ret)
 if osplatformname == "linux":
     print("dmg: converting image")
     os.system("cd " + os.path.abspath(".") + "; " +
@@ -283,7 +336,7 @@ os.system("cd " + os.path.abspath(".") + "; " +
 print("iBoot32Patcher: Patching iBEC")
 os.system("cd " + os.path.abspath(".") + "; " +
           "./tool/" + osplatformname + "/iBoot32Patcher iBEC.decrypted.dfu pwnediBEC -b \"rd=disk0s1s1 -v\"")
-os.remove(newfile)
+#os.remove(newfile)
 print("Part II already prepared.")
 print("                   PART III                       ")
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -291,24 +344,48 @@ s.connect(('8.8.8.8', 80))
 ip = s.getsockname()[0]
 s.close()
 os.system("cd " + os.path.abspath("./debs") + "; " +
-          "nohup python -m SimpleHTTPServer & >/dev/null 2>/dev/null")
-print("Waiting for device connection")
+          "nohup python -m SimpleHTTPServer & >/dev/null 2>&1")
+print("Waiting for HTTP Server to start. Please wait for 5 seconds...")
+time.sleep(5)
+os.system("nohup ./usbmux/tcprelay.py -t 22:2222 & >/dev/null 2>&1")
+print("Waiting for usbmux to start. Please wait for 5 seconds...")
+time.sleep(5)
+ssh = paramiko.SSHClient()
+known_host = paramiko.AutoAddPolicy()
+ssh.set_missing_host_key_policy(known_host)
+print("Open Cydia, add source http://" + ip + ":8000, install OpenSSH, then")
 cmd = ['lsof', '-i', ':8000']
 pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout
 output = pipe.read()
 output = str(output, encoding = "utf-8")
 serverpid = output.split("\n")[1].split(" ")[2]
-print("HTTP PID: " + serverpid)
-os.system("nohup ./usbmux/tcprelay.py -t 22:2222 & >/dev/null 2>/dev/null")
-ssh = paramiko.SSHClient()
-known_host = paramiko.AutoAddPolicy()
-ssh.set_missing_host_key_policy(known_host)
-print("Open Cydia, add source http://" + ip + ":8888, install OpenSSH, then")
+cmd = ['lsof', '-i', ':2222']
+pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout
+output = pipe.read()
+output = str(output, encoding = "utf-8")
+usbmuxpid = output.split("\n")[1].split(" ")[2]
+print("Service PID: " + serverpid)
+print("Usbmux PID " + usbmuxpid)
+input("Enter if finished. Ctrl-C to stop.")
+print("Stopping HTTP service.")
+os.kill(int(serverpid), signal.SIGKILL)
 print("please connect your device with a USB cable.")
 ssh = testssh(ssh)
 print("Sending downgrade-required tools")
-with scpclient.closing(scpclient.Write(ssh.get_transport(), remote_path="/tmp/")) as scp:
-    scp.send_file("./debs/com.coolbooter.coolbootercli_1.1-beta1-release.deb",
-                  preserve_times=True, remote_filename="coolbooter.deb")
+scp = SCPClient(ssh.get_transport(), socket_timeout=15)
+scp.put("./debs/com.coolbooter.coolbootercli_1.1-beta1-release.deb",
+        "/tmp/coolbooter.deb")
 print("Installing required packages.")
 ssh.exec_command("dpkg -i /tmp/coolbooter.deb")
+print("CoolBooter: Installing iOS 6.1.3. This may take a long time, please wait...")
+shell = ssh.invoke_shell()
+while True:
+    line = shell.recv(1024)
+    if line and line.endswith(b'#'):
+        break;
+ssh.sendall("coolbootercli 6.1.3 --datasize " + str(storage / 2) + "GB")
+while True:
+    line = shell.recv(1024)
+    if line and line.endswith(b'#'):
+        break;
+    print(line)
