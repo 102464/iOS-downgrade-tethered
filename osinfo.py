@@ -9,3 +9,5 @@ class OSInfo:
 
     def getpythonversion(self):
         return self.pythonversion
+
+#   def checkRequirements(self):
