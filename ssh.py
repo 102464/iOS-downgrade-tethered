@@ -50,14 +50,18 @@ def startHTTPServer():
 def waitForConnection(sshobj: paramiko.SSHClient) -> paramiko.SSHClient:
     global x
     try:
-        time.sleep(10)
+        #time.sleep(10)
         sshobj.connect(
-            hostname="127.0.0.1",
-            port=2222,
-            username="root",
+            hostname=ipaddr,
+            port=sshport,
+            username=sshuser,
             password=sshpass
         )
         return sshobj
+    except paramiko.ssh_exception.AuthenticationException:
+        print("Authentication failure. Check your password and try again.")
+        print("Exiting.")
+        exit(1)
     except paramiko.ssh_exception.SSHException:
         x = x + 1
         if x == 10:

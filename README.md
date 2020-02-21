@@ -1,3 +1,6 @@
+## Disclaimer
+This is BETA software. This may boot loop or brick your device if you don't know what you're doing. 
+
 # iOS-downgrade-tethered
 
 #### Downgrade methods from [here](https://www.reddit.com/r/jailbreak/comments/7v6pxu/release_tutorial_how_to_downgrade_any_32_bit)

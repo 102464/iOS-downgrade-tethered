@@ -79,12 +79,14 @@ print("")
 print("                    PART I                        ")
 print("We need to gather some information.")
 print("You must make sure these information are correct.")
+
 sshpass = getpass.getpass("Enter your SSH password (Default \"alpine\", enter for default):")
 if sshpass == "":
     print("Set password to Default. \"alpine\"")
     sshpass = "alpine"
 else:
     print("password won't shown.")
+
 print(" ID         SUPPORTED DEVICE LIST                 ")
 print(" 1                iPad3,1                         ")
 devicenum = input("Enter ID: ")
@@ -157,7 +159,7 @@ firmwareversion = data['firmwares'][int(firmwareid) - 1]['version']
 firmwarefile = os.path.basename(downloadlink)
 print("Download URL: " + downloadlink)
 print("Checking if it is exist")
-'''
+
 if not os.path.exists(os.path.join(os.path.abspath("."),firmwarefile)):
     print("Downloader: Downloading firmware")
     print("Downloader: Info")
@@ -205,15 +207,18 @@ iboot.patch_iBoot(osInfo, "iBSS", "iBSS.x")
 print("iBoot32Patcher: Patching iBEC")
 iboot.patch_iBoot(osInfo, "iBEC", "iBEC.x", "rd=disk0s1s1 -v")
 print("Part II already prepared.")
-'''
+
 print("                   PART III                       ")
+
 ssh.killPort(2222)
 ssh.killPort(8000)
+
 ssh.setPassword(sshpass)
 ssh.setIPAndPort("127.0.0.1", "2222")
 ssh.setUsername("root")
 ssh.startUsbmuxd()
 ssh.startHTTPServer()
+
 ip = ssh.getMyIPAddress()
 print("Open Cydia, add source http://" + ip + ":8000, install OpenSSH and CoolBooter, then")
 print("please connect your device with a USB cable.")
@@ -227,13 +232,13 @@ input("ENTER TO CONTINUE.")
 print("Backing up keybag.")
 ssh.scp_get_file(sshClient, "/var/keybags/systembag.kb", "systembag.kb")
 print("Sending iOS 6.1.3 firmware. This may need a long time...")
-'''
+
 ssh.scp_transfer_file(sshClient, os.path.basename(firmware613),
                       "/var/cbooter/" + os.path.basename(firmware613))
 print("CoolBooter: Installing iOS 6.1.3, please wait...")
-'''
+
 shell = sshClient.invoke_shell()
-'''
+
 while True:
     line = shell.recv(1024)
     if line and line.endswith(b'root#'):
@@ -244,7 +249,7 @@ while True:
     if line and line.endswith(b'root#'):
         break
     print(line)
-'''
+
 print("Rebooting your device to new system. Please lock your device after 5 seconds.")
 shell.send("coolbootercli -b\n")
 time.sleep(5)
@@ -262,7 +267,61 @@ time.sleep(60)
 print("End Part III.")
 print("                    PART IV                        ")
 ssh.startHTTPServer()
-print("Open Cydia, add source http://" + ip + ":8000, install OpenSSH.")
+print("Open Cydia, add source http://" + ip + ":8000, install OpenSSH and dualbootstuff.")
 input("Enter if finished. Ctrl-C to stop.")
 print("Stopping HTTP service.")
 ssh.killPort(8000)
+
+print("--[Waiting for connection]---")
+sshClient = ssh.connect()
+
+print("DANGER! You have entered the most dangerous part.")
+print("We will partition this device and restore the firmware")
+print("to device. The device may be bricked any time and cannot")
+print("be recovered. If your device bricks or entered bootloop,")
+print("please manually let your device enter DFU mode, and restore")
+print("it using iTunes.")
+print("Your data will ALL LOST after downgrading with this tool!")
+print("")
+input("ENTER TO CONTINUE. Ctrl-C to abort.")
+
+shell = sshClient.invoke_shell()
+shell.send("gptfdisk\n/dev/rdisk0s1\ni\n1\n")
+while True:
+    time.sleep(0.5)
+    line = shell.recv(1024)
+    # print(line.decode('utf-8'))
+    if line:
+        pos = line.decode('utf-8').find('Partition unique GUID: ')
+        print("GUID position:" + str(pos))
+        guid_system = line.decode('utf-8')[pos+23:pos+59]
+        print("GUID for partition \"System\": " + guid_system)
+        line = b''
+        break
+shell.send("i\n2\n")
+while True:
+    time.sleep(0.5)
+    line = shell.recv(1024)
+    # print(line.decode('utf-8'))
+    if line:
+        pos = line.decode('utf-8').find('Partition unique GUID: ')
+        print("GUID position:" + str(pos))
+        guid_data = line.decode('utf-8')[pos+23:pos+59]
+        print("GUID for partition \"Data\": " + guid_data)
+        line = b''
+        break
+print("NOTE: These following operations won't write to disk at this moment.")
+print("Deleting partitions")
+shell.send("d\n1\nd\n2\n")
+while True:
+    time.sleep(0.5)
+    line = shell.recv(1024)
+    if line:
+        break
+# TODO: Mount Ramdisk and get SystemPartitionSize from plist file.
+# print("Trying to get SystemPartitionSize from RestoreRamdisk")
+# print("-> Decrypting RestoreRamdisk")
+ioscrypto.decryptImg3()
+print("Creating new partitions")
+shell.send("n\n1\n")
+shell.send("q\n")
