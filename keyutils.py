@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import json
 import ioscrypto
@@ -34,9 +36,9 @@ try:
         try:
             apiurl = "http://api.ipsw.me/v4"
             f = urlopen(apiurl + "/device/" + args.deviceId + "?type=ipsw")
-            with open("firmware-api.json", "wb") as code:
+            with open("firmware-api-keys.json", "wb") as code:
                 code.write(f.read())
-            data = json.load(open("firmware-api.json"))
+            data = json.load(open("firmware-api-keys.json"))
             num = len(data['firmwares'])
             kdict = {}
             firmwares = {}
