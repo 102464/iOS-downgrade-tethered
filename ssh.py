@@ -22,16 +22,16 @@ def getMyIPAddress():
     return ip
 
 
-def killPort(port):
+def killPort(port: int):
     try:
-        cmd = ['lsof', '-i', ':' + port]
+        cmd = ['lsof', '-i', ':' + str(port)]
         pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout
         output = pipe.read()
         output = str(output, encoding="utf-8")
         pid = output.split("\n")[1].split(" ")[2]
         os.kill(int(pid), signal.SIGKILL)
     except IndexError:
-        print("NOTE: No process that was using port " + port)
+        print("NOTE: No process that was using port " + str(port))
 
 
 def startUsbmuxd():
@@ -42,12 +42,12 @@ def startUsbmuxd():
 
 def startHTTPServer():
     os.system("cd " + os.path.abspath("./debs") + "; " +
-              "nohup python -m SimpleHTTPServer & >/dev/null 2>&1")
+              "nohup python -m http.server & >/dev/null 2>&1")
     print("Waiting for HTTP Server to start. Please wait for 5 seconds...")
     time.sleep(5)
 
 
-def waitForConnection(sshobj):
+def waitForConnection(sshobj: paramiko.SSHClient) -> paramiko.SSHClient:
     global x
     try:
         time.sleep(10)
@@ -58,7 +58,7 @@ def waitForConnection(sshobj):
             password=sshpass
         )
         return sshobj
-    except ConnectionError as ex:
+    except paramiko.ssh_exception.SSHException:
         x = x + 1
         if x == 10:
             print("USB Connection failure: No device connected " +
@@ -78,7 +78,7 @@ def setPassword(password):
     sshpass = password
 
 
-def setIPAndPort(ip, port = 22):
+def setIPAndPort(ip, port=22):
     global ipaddr, sshport
     ipaddr = ip
     sshport = port
@@ -92,8 +92,8 @@ def connect() -> paramiko.SSHClient:
     return ssh
 
 
-def scp_transfer_file(ssh: paramiko.SSHClient, localpath, remotepath):
-    scpClient = SCPClient(ssh.get_transport(), socket_timeout=15.0)
+def scp_transfer_file(sshClient: paramiko.SSHClient, localpath, remotepath):
+    scpClient = SCPClient(sshClient.get_transport(), socket_timeout=15.0)
     try:
         scpClient.put(localpath, remotepath)
     except FileNotFoundError as e:
@@ -103,8 +103,8 @@ def scp_transfer_file(ssh: paramiko.SSHClient, localpath, remotepath):
         exit(1)
 
 
-def scp_get_file(ssh: paramiko.SSHClient, remotepath, localpath):
-    scpClient = SCPClient(ssh.get_transport(), socket_timeout=15.0)
+def scp_get_file(sshClient: paramiko.SSHClient, remotepath, localpath):
+    scpClient = SCPClient(sshClient.get_transport(), socket_timeout=15.0)
     try:
         scpClient.get(remotepath, localpath)
     except FileNotFoundError as e:
@@ -112,3 +112,9 @@ def scp_get_file(ssh: paramiko.SSHClient, remotepath, localpath):
         print("Sorry, file not found in remote path: " + remotepath)
         print("Exiting.")
         exit(1)
+
+
+if __name__ == "__main__":
+    print("This is a python module. You can't execute it.")
+    print("Run ./downgrade.py please.")
+    exit(1)

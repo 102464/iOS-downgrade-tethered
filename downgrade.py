@@ -157,6 +157,7 @@ firmwareversion = data['firmwares'][int(firmwareid) - 1]['version']
 firmwarefile = os.path.basename(downloadlink)
 print("Download URL: " + downloadlink)
 print("Checking if it is exist")
+'''
 if not os.path.exists(os.path.join(os.path.abspath("."),firmwarefile)):
     print("Downloader: Downloading firmware")
     print("Downloader: Info")
@@ -204,6 +205,7 @@ iboot.patch_iBoot(osInfo, "iBSS", "iBSS.x")
 print("iBoot32Patcher: Patching iBEC")
 iboot.patch_iBoot(osInfo, "iBEC", "iBEC.x", "rd=disk0s1s1 -v")
 print("Part II already prepared.")
+'''
 print("                   PART III                       ")
 ssh.killPort(2222)
 ssh.killPort(8000)
@@ -225,10 +227,13 @@ input("ENTER TO CONTINUE.")
 print("Backing up keybag.")
 ssh.scp_get_file(sshClient, "/var/keybags/systembag.kb", "systembag.kb")
 print("Sending iOS 6.1.3 firmware. This may need a long time...")
+'''
 ssh.scp_transfer_file(sshClient, os.path.basename(firmware613),
                       "/var/cbooter/" + os.path.basename(firmware613))
 print("CoolBooter: Installing iOS 6.1.3, please wait...")
+'''
 shell = sshClient.invoke_shell()
+'''
 while True:
     line = shell.recv(1024)
     if line and line.endswith(b'root#'):
@@ -239,11 +244,19 @@ while True:
     if line and line.endswith(b'root#'):
         break
     print(line)
+'''
 print("Rebooting your device to new system. Please lock your device after 5 seconds.")
 shell.send("coolbootercli -b\n")
 time.sleep(5)
-sshClient.close()
 print("Lock your device to continue.")
+while True:
+    line = shell.recv(1024)
+    print(line.decode('utf-8'))
+    if line == b'':
+        print("multi_kloader ends")
+        print("Device should boot in verbose mode.")
+        break
+sshClient.close()
 print("Waiting for a minute for your device to start...")
 time.sleep(60)
 print("End Part III.")
