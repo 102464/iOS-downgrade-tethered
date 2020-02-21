@@ -9,9 +9,10 @@ import platform
 import getpass
 import zipfile
 import json
+import time
+
 import iboot
 import ioscrypto
-import handlers
 import firmwareapi
 import downloader
 import osinfo
@@ -122,8 +123,7 @@ else:
             else:
                 print("Invalid selection. Exiting.")
                 exit(1)
-print("API: Downloading device information.")
-firmwareapi.getfirmwarejson()
+firmwareapi.getfirmwarejson(deviceidentifier)
 data = json.load(open("firmware-api.json"))
 print("Data type: " + str(type(data)))
 print("API: Getting firmware information.")
@@ -141,7 +141,7 @@ if not str(firmwareid).isdigit():
     print("Invalid selection: Not a number. exiting.")
     exit(1)
 if int(firmwareid) > totalnum or int(firmwareid) < 1:
-    print("Invalid selection: Range invalid. exiting.")
+    print("Invalid selection: Index out of range. exiting.")
     exit(1)
 if data['firmwares'][int(firmwareid) - 1]['version'][0] == "5":
     print("iOS 5 is not supported yet! exiting.")
@@ -170,8 +170,10 @@ else:
 print("Downloading iOS 6.1.3 firmware. This is required, please wait with patience.")
 firmware613 = data['firmwares'][num613]['url']
 md5sum613 = data['firmwares'][num613]['md5sum']
-downloader.download(firmware613)
-print("Hashing firmware.")
+if not os.path.exists(os.path.join(os.path.abspath("."), os.path.basename(firmware613))):
+    downloader.download(firmware613)
+else:
+    print("Firmware already exists!")
 downloader.checkHash(firmwarefile, md5sum)
 downloader.checkHash(os.path.basename(firmware613), md5sum613)
 print("Extracting firmware...")
@@ -211,30 +213,43 @@ ssh.setUsername("root")
 ssh.startUsbmuxd()
 ssh.startHTTPServer()
 ip = ssh.getMyIPAddress()
-print("Open Cydia, add source http://" + ip + ":8000, install OpenSSH, then")
+print("Open Cydia, add source http://" + ip + ":8000, install OpenSSH and CoolBooter, then")
+print("please connect your device with a USB cable.")
 input("Enter if finished. Ctrl-C to stop.")
 print("Stopping HTTP service.")
 ssh.killPort(8000)
-print("please connect your device with a USB cable.")
 print("---[Waiting for connection]---")
 sshClient = ssh.connect()
-print("Sending downgrade-required tools")
-ssh.scp_transfer_file(sshClient, "./debs/com.coolbooter.coolbootercli_1.1-beta1-release.deb",
-                      "/tmp/coolbooter.deb")
-print("Installing required packages.")
-ssh.exec_command("dpkg -i /tmp/coolbooter.deb")
+print("Please remove passcode lock before continue. Passcode may cause bootloop on this device.")
+input("ENTER TO CONTINUE.")
+print("Backing up keybag.")
+ssh.scp_get_file(sshClient, "/var/keybags/systembag.kb", "systembag.kb")
 print("Sending iOS 6.1.3 firmware. This may need a long time...")
 ssh.scp_transfer_file(sshClient, os.path.basename(firmware613),
                       "/var/cbooter/" + os.path.basename(firmware613))
 print("CoolBooter: Installing iOS 6.1.3, please wait...")
-shell = ssh.invoke_shell()
+shell = sshClient.invoke_shell()
 while True:
     line = shell.recv(1024)
-    if line and line.endswith(b'#'):
-        break;
-ssh.sendall("coolbootercli 6.1.3 --datasize " + str(storage / 2) + "GB")
+    if line and line.endswith(b'root#'):
+        break
+    shell.send("coolbootercli 6.1.3 --datasize " + str(storage / 2) + "GB\n")
 while True:
     line = shell.recv(1024)
-    if line and line.endswith(b'#'):
-        break;
+    if line and line.endswith(b'root#'):
+        break
     print(line)
+print("Rebooting your device to new system. Please lock your device after 5 seconds.")
+shell.send("coolbootercli -b\n")
+time.sleep(5)
+sshClient.close()
+print("Lock your device to continue.")
+print("Waiting for a minute for your device to start...")
+time.sleep(60)
+print("End Part III.")
+print("                    PART IV                        ")
+ssh.startHTTPServer()
+print("Open Cydia, add source http://" + ip + ":8000, install OpenSSH.")
+input("Enter if finished. Ctrl-C to stop.")
+print("Stopping HTTP service.")
+ssh.killPort(8000)

@@ -84,7 +84,7 @@ def setIPAndPort(ip, port = 22):
     sshport = port
 
 
-def connect():
+def connect() -> paramiko.SSHClient:
     ssh = paramiko.SSHClient()
     known_host = paramiko.AutoAddPolicy()
     ssh.set_missing_host_key_policy(known_host)
@@ -98,6 +98,17 @@ def scp_transfer_file(ssh: paramiko.SSHClient, localpath, remotepath):
         scpClient.put(localpath, remotepath)
     except FileNotFoundError as e:
         print(e)
-        print("Sorry, file not found:" + localpath)
+        print("Sorry, file not found in local path: " + localpath)
+        print("Exiting.")
+        exit(1)
+
+
+def scp_get_file(ssh: paramiko.SSHClient, remotepath, localpath):
+    scpClient = SCPClient(ssh.get_transport(), socket_timeout=15.0)
+    try:
+        scpClient.get(remotepath, localpath)
+    except FileNotFoundError as e:
+        print(e)
+        print("Sorry, file not found in remote path: " + remotepath)
         print("Exiting.")
         exit(1)
