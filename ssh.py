@@ -50,7 +50,7 @@ def startHTTPServer():
 def waitForConnection(sshobj: paramiko.SSHClient) -> paramiko.SSHClient:
     global x
     try:
-        #time.sleep(10)
+        time.sleep(10)
         sshobj.connect(
             hostname=ipaddr,
             port=sshport,
