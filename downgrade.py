@@ -285,4 +285,4 @@ input("ENTER TO CONTINUE. Ctrl-C to abort.")
 
 if deviceidentifier == 'iPad3,1':
     from DeviceSupport import iPad3_1_Support
-    iPad3_1_Support.startDowngrade(osInfo, firmwareversion, storage, shell, keys, ivs)
+    iPad3_1_Support.startDowngrade(osInfo, firmwareversion, storage, sshClient, keys, ivs)
