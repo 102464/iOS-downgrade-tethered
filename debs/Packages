@@ -1,13 +1,13 @@
 Package: com.coolbooter.coolbootercli
-Version: 1.1-beta1-release
+Version: 0.8.2-release
 Architecture: iphoneos-arm
 Maintainer: CoolBooter <coolbooterios@gmail.com>
 Depends: xpwn, zip, unzip, ldid, diskdev-cmds, wget, firmware (>= 5.0)
-Filename: ./com.coolbooter.coolbootercli_1.1-beta1-release.deb
-Size: 23636058
-MD5sum: e08f56973c73c672724051d3f1c20bca
-SHA1: bcb3b4fe35046454b8b238a17360afac00447f0e
-SHA256: 19b5c8d03633618d35925d450deb5ab8b0efadc9f0ffbb53e69388f303047ba7
+Filename: ./com.coolbooter.coolbootercli_0.8.2-release.deb
+Size: 15779024
+MD5sum: faf50cc73fba553fa581400ed579222b
+SHA1: 78415aa261a1997ee2f6347fc54466e62ee47775
+SHA256: a225c593658ac34c750081e24fcf94d4ecd1eeadf08a4a09329b39971e7328b3
 Section: System
 Description: CoolBooter is an all-in-one dual booting utility for jailbroken 32 bit iOS devices.
 Author: CoolBooter <coolbooterios@gmail.com>
@@ -62,3 +62,4 @@ Section: Security
 Priority: standard
 Description: SSL library and cryptographic tools
 Name: OpenSSL
+

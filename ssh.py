@@ -65,7 +65,7 @@ def waitForConnection(sshobj: paramiko.SSHClient) -> paramiko.SSHClient:
     except paramiko.ssh_exception.SSHException:
         x = x + 1
         if x == 10:
-            print("USB Connection failure: No device connected " +
+            print("USB Connection failure: No device connected " 
                   "after 100 seconds' timeout. Exiting.")
             exit(1)
         else:

@@ -79,7 +79,6 @@ print("")
 print("                    PART I                        ")
 print("We need to gather some information.")
 print("You must make sure these information are correct.")
-
 sshpass = getpass.getpass("Enter your SSH password (Default \"alpine\", enter for default):")
 if sshpass == "":
     print("Set password to Default. \"alpine\"")
@@ -135,8 +134,8 @@ print(" ID               Firmware List                   ")
 for i in range(0, totalnum - 1):
     print(" " + str(i + 1) + "               " + data['firmwares'][i]['version'] + " (" +
           data['firmwares'][i]['buildid'] + ")")
-    if data['firmwares'][i]['version'] == "6.1.3":
-        num613 = i
+    if data['firmwares'][i]['version'] == "7.1.2":
+        num712 = i
 
 firmwareid = input("Enter ID: ")
 if not str(firmwareid).isdigit():
@@ -159,7 +158,6 @@ firmwareversion = data['firmwares'][int(firmwareid) - 1]['version']
 firmwarefile = os.path.basename(downloadlink)
 print("Download URL: " + downloadlink)
 print("Checking if it is exist")
-
 if not os.path.exists(os.path.join(os.path.abspath("."),firmwarefile)):
     print("Downloader: Downloading firmware")
     print("Downloader: Info")
@@ -170,21 +168,20 @@ if not os.path.exists(os.path.join(os.path.abspath("."),firmwarefile)):
     print("Downloader: Download complete")
 else:
     print("Firmware already exists!")
-print("Downloading iOS 6.1.3 firmware. This is required, please wait with patience.")
-firmware613 = data['firmwares'][num613]['url']
-md5sum613 = data['firmwares'][num613]['md5sum']
-if not os.path.exists(os.path.join(os.path.abspath("."), os.path.basename(firmware613))):
-    downloader.download(firmware613)
+print("Downloading iOS 7.1.2 firmware. This is required, please wait with patience.")
+firmware712 = data['firmwares'][num712]['url']
+md5sum712 = data['firmwares'][num712]['md5sum']
+if not os.path.exists(os.path.join(os.path.abspath("."), os.path.basename(firmware712))):
+    downloader.download(firmware712)
 else:
     print("Firmware already exists!")
 downloader.checkHash(firmwarefile, md5sum)
-downloader.checkHash(os.path.basename(firmware613), md5sum613)
+downloader.checkHash(os.path.basename(firmware712), md5sum712)
 print("Extracting firmware...")
 file = zipfile.ZipFile(firmwarefile)
 if not os.path.exists(os.path.join(os.path.abspath("."),"firmware")):
     os.mkdir("firmware")
 file.extractall("firmware")
-
 keys, ivs = ioscrypto.getKeyAndIV(firmwareversion, deviceidentifier)
 print("Next we will decrypt firmware files. Your screen will display a lot of text.")
 print("That's normal! When finished, you need to connect your device with a USB cable.")
@@ -209,7 +206,6 @@ iboot.patch_iBoot(osInfo, "iBEC", "iBEC.x", "rd=disk0s1s1 -v cs_enforcement_disa
 print("Part II already prepared.")
 
 print("                   PART III                       ")
-
 ssh.killPort(2222)
 ssh.killPort(8000)
 
@@ -218,7 +214,6 @@ ssh.setIPAndPort("127.0.0.1", "2222")
 ssh.setUsername("root")
 ssh.startUsbmuxd()
 ssh.startHTTPServer()
-
 ip = ssh.getMyIPAddress()
 print("Open Cydia, add source http://" + ip + ":8000, install OpenSSH and CoolBooter, then")
 print("please connect your device with a USB cable.")
@@ -231,23 +226,30 @@ print("Please remove passcode lock before continue. Passcode may cause bootloop 
 input("ENTER TO CONTINUE.")
 print("Backing up keybag.")
 ssh.scp_get_file(sshClient, "/var/keybags/systembag.kb", "systembag.kb")
-print("Sending iOS 6.1.3 firmware. This may need a long time...")
-
-ssh.scp_transfer_file(sshClient, os.path.basename(firmware613),
-                      "/var/cbooter/" + os.path.basename(firmware613))
-print("CoolBooter: Installing iOS 6.1.3, please wait...")
+print("Sending iOS 7.1.2 firmware. This may need a long time...")
+'''
+ssh.scp_transfer_file(sshClient, os.path.basename(firmware712),
+                      "/var/cbooter/" + os.path.basename(firmware712))
+print("CoolBooter: Installing iOS 7.1.2, please wait...")
+'''
 shell = sshClient.invoke_shell()
 while True:
     line = shell.recv(1024)
-    if line and line.endswith(b'root#'):
+    if line:
         break
-    shell.send("coolbootercli 6.1.3 --datasize " + str(storage / 2) + "GB\n")
+'''
+shell.send("coolbootercli 7.1.2 --datasize " + str(int(storage / 2)) + "GB\n")
 while True:
     line = shell.recv(1024)
-    if line and line.endswith(b'root#'):
+    print(line.decode('utf-8'))
+    if line == b'':
         break
-    print(line)
-
+print("Device should automatically reboots. Wait 60 seconds...")
+time.sleep(60)
+input("Start SSH Service and ENTER TO CONTINUE")
+print("---[Waiting for connection]---")
+sshClient = ssh.connect()
+'''
 print("Rebooting your device to new system. Please lock your device after 5 seconds.")
 shell.send("coolbootercli -b\n")
 time.sleep(5)
@@ -269,7 +271,6 @@ print("Open Cydia, add source http://" + ip + ":8000, install OpenSSH and dualbo
 input("Enter if finished. Ctrl-C to stop.")
 print("Stopping HTTP service.")
 ssh.killPort(8000)
-
 print("--[Waiting for connection]---")
 sshClient = ssh.connect()
 

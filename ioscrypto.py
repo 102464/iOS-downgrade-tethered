@@ -91,7 +91,7 @@ def decryptRootFS(osInfo: osinfo.OSInfo, path, key):
     if osInfo.getosplatform() == "macosx":
         print("hdiutil: converting format")
         os.system("cd " + os.path.abspath(".") + "; " +
-                  "hdiutil convert -format UDZO " + newfile + " -o RootFilesystem.dmg")
+                  "hdiutil convert -format UDZO -o RootFilesystem.dmg " + newfile)
         print("ASR: Scanning image")
         ret = os.system("cd " + os.path.abspath(".") + "; " +
                         "asr -imagescan RootFilesystem.dmg")
