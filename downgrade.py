@@ -205,7 +205,7 @@ ioscrypto.decryptRootFS(osInfo, "firmware/" + rootfsfile, keys['rootfs'])
 print("iBoot32Patcher: Patching iBSS")
 iboot.patch_iBoot(osInfo, "iBSS", "iBSS.x")
 print("iBoot32Patcher: Patching iBEC")
-iboot.patch_iBoot(osInfo, "iBEC", "iBEC.x", "rd=disk0s1s1 -v")
+iboot.patch_iBoot(osInfo, "iBEC", "iBEC.x", "rd=disk0s1s1 -v cs_enforcement_disable=1 amfi_get_out_of_my_way=1")
 print("Part II already prepared.")
 
 print("                   PART III                       ")
@@ -236,9 +236,7 @@ print("Sending iOS 6.1.3 firmware. This may need a long time...")
 ssh.scp_transfer_file(sshClient, os.path.basename(firmware613),
                       "/var/cbooter/" + os.path.basename(firmware613))
 print("CoolBooter: Installing iOS 6.1.3, please wait...")
-
 shell = sshClient.invoke_shell()
-
 while True:
     line = shell.recv(1024)
     if line and line.endswith(b'root#'):
@@ -287,4 +285,4 @@ input("ENTER TO CONTINUE. Ctrl-C to abort.")
 
 if deviceidentifier == 'iPad3,1':
     from DeviceSupport import iPad3_1_Support
-    iPad3_1_Support.startDowngrade(osInfo, firmwareversion, shell, keys, ivs)
+    iPad3_1_Support.startDowngrade(osInfo, firmwareversion, storage, shell, keys, ivs)

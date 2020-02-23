@@ -4,9 +4,9 @@ from DeviceSupport.iPad3_1 import partition
 import osinfo
 
 
-def startDowngrade(osInfo: osinfo.OSInfo, version, shell, keys, ivs):
+def startDowngrade(osInfo: osinfo.OSInfo, version, storage: int, shell, keys, ivs):
     print("Device Support for iPad3,1 version iOS " + version + " started")
-    partition.partitionDevice(osInfo, shell, keys['restoreRamdisk'], ivs['restoreRamdisk'])
+    partition.partitionDevice(osInfo, shell, storage, keys['restoreRamdisk'], ivs['restoreRamdisk'])
 
 
 if __name__ == "__main__":
