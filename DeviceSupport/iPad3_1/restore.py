@@ -21,7 +21,7 @@ def restore(sshClient: paramiko.SSHClient, restoreImage, device):
         time.sleep(0.5)
         line = shell.recv(1024)
         print(line.decode('utf-8'))
-        if line:
+        if line or line.endswith(b'# '):
             break
     print("Restore: Done")
 
@@ -31,7 +31,7 @@ def formatSystem(shell):
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)
-        if line:
+        if line or line.endswith(b'# '):
             break
     print(line.decode('utf-8'))
 
@@ -41,7 +41,7 @@ def formatData(shell):
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)
-        if line:
+        if line or line.endswith(b'# '):
             break
     print(line.decode('utf-8'))
 
@@ -51,7 +51,7 @@ def scanPartition(shell, device):
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)
-        if line:
+        if line or line.endswith(b'# '):
             break
     print(line.decode('utf-8'))
 

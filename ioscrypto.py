@@ -8,7 +8,8 @@ def getKeyAndIV(firmwareversion, deviceidentifier):
     jvm_path = getDefaultJVMPath()
     print("iOSUtils: JVM Path: " + jvm_path)
     if not isJVMStarted():
-        startJVM(jvm_path, "-ea", "-Djava.class.path=" + os.path.join(os.path.abspath(""), "iOSUtils-jdk7.jar"))
+        startJVM(jvm_path, "-ea", "-Djava.class.path=" + os.path.join(os.path.abspath(""), "iOSUtils-jdk7.jar"),
+                 convertStrings=False)
     java.lang.System.out.println("If you see this message, that means JVM works well.")
     print("iOSUtils: importing CA certificate")
     java.lang.System.setProperty("javax.net.ssl.trustStore", "cacerts")
@@ -74,13 +75,19 @@ def getKeyAndIV(firmwareversion, deviceidentifier):
 
 def decryptImg3(osInfo: osinfo.OSInfo, path, destination, key, iv, decryptFlag: bool = False):
     if decryptFlag:
-        flag = "-decrypt"
+        flag = " -decrypt"
     else:
         flag = ""
     os.system("cd " + os.path.abspath("") + "; " +
               "./tool/" + osInfo.getosplatform() + "/xpwntool " + path + " " +
               destination + " " + " -k " + key +
-              " -iv " + iv + " " + flag)
+              " -iv " + iv + flag)
+
+
+def repackImg3(osInfo: osinfo.OSInfo, path, destination, template):
+    os.system("cd " + os.path.abspath("") + "; " +
+              "./tool/" + osInfo.getosplatform() + "/xpwntool " + path + " " +
+              destination + " -t " + template)
 
 
 def decryptRootFS(osInfo: osinfo.OSInfo, path, key):

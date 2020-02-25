@@ -186,6 +186,8 @@ keys, ivs = ioscrypto.getKeyAndIV(firmwareversion, deviceidentifier)
 print("Next we will decrypt firmware files. Your screen will display a lot of text.")
 print("That's normal! When finished, you need to connect your device with a USB cable.")
 input("ENTER to continue!")
+ioscrypto.decryptImg3(osInfo, "firmware/Firmware/all_flash*/all_flash*/applelogo*.img3",
+                      "applelogo", keys['applelogo'], ivs['applelogo'], True)
 ioscrypto.decryptImg3(osInfo, "firmware/Firmware/dfu/iBSS.*.dfu", "iBSS", keys['ibss'], ivs['ibss'])
 ioscrypto.decryptImg3(osInfo, "firmware/Firmware/dfu/iBEC.*.dfu", "iBEC", keys['ibec'], ivs['ibec'])
 ioscrypto.decryptImg3(osInfo, "firmware/Firmware/all_flash*/all_flash*/DeviceTree.*.img3",
@@ -203,6 +205,9 @@ print("iBoot32Patcher: Patching iBSS")
 iboot.patch_iBoot(osInfo, "iBSS", "iBSS.x")
 print("iBoot32Patcher: Patching iBEC")
 iboot.patch_iBoot(osInfo, "iBEC", "iBEC.x", "rd=disk0s1s1 -v cs_enforcement_disable=1 amfi_get_out_of_my_way=1")
+print("Repacking iBSS and iBEC")
+ioscrypto.repackImg3(osInfo, "iBSS.x", "pwnediBSS", "firmware/Firmware/dfu/iBSS.*.dfu")
+ioscrypto.repackImg3(osInfo, "iBEC.x", "pwnediBEC", "firmware/Firmware/dfu/iBEC.*.dfu")
 print("Part II already prepared.")
 
 print("                   PART III                       ")
@@ -225,19 +230,17 @@ sshClient = ssh.connect()
 print("Please remove passcode lock before continue. Passcode may cause bootloop on this device.")
 input("ENTER TO CONTINUE.")
 print("Backing up keybag.")
+'''
 ssh.scp_get_file(sshClient, "/var/keybags/systembag.kb", "systembag.kb")
 print("Sending iOS 7.1.2 firmware. This may need a long time...")
-'''
 ssh.scp_transfer_file(sshClient, os.path.basename(firmware712),
                       "/var/cbooter/" + os.path.basename(firmware712))
 print("CoolBooter: Installing iOS 7.1.2, please wait...")
-'''
 shell = sshClient.invoke_shell()
 while True:
     line = shell.recv(1024)
     if line:
         break
-'''
 shell.send("coolbootercli 7.1.2 --datasize " + str(int(storage / 2)) + "GB\n")
 while True:
     line = shell.recv(1024)
@@ -247,9 +250,10 @@ while True:
 print("Device should automatically reboots. Wait 60 seconds...")
 time.sleep(60)
 input("Start SSH Service and ENTER TO CONTINUE")
+'''
 print("---[Waiting for connection]---")
 sshClient = ssh.connect()
-'''
+shell = sshClient.invoke_shell()
 print("Rebooting your device to new system. Please lock your device after 5 seconds.")
 shell.send("coolbootercli -b\n")
 time.sleep(5)
@@ -282,6 +286,7 @@ print("please manually let your device enter DFU mode, and restore")
 print("it using iTunes.")
 print("Your data will ALL LOST after downgrading with this tool!")
 print("")
+
 input("ENTER TO CONTINUE. Ctrl-C to abort.")
 
 if deviceidentifier == 'iPad3,1':

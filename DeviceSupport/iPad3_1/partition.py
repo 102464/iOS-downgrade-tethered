@@ -17,6 +17,7 @@ guid_data = ""
 attributeFlags_data = ""
 SystemPartitionPadding = ""
 
+
 def partitionDevice_stage1(osInfo: osinfo.OSInfo, shell, storage: int, key, iv):
     global guid_data, guid_system, attributeFlags_data, SystemPartitionPadding
     shell.send("gptfdisk\n/dev/rdisk0s1\ni\n1\n")
@@ -42,7 +43,7 @@ def partitionDevice_stage1(osInfo: osinfo.OSInfo, shell, storage: int, key, iv):
             print("GUID for partition \"Data\": " + guid_data)
             pos = line.decode('utf-8').find('Attribute flags: ')
             print("Attribute flags position: " + str(pos))
-            attributeFlags_data: str = line.decode('utf-8')[pos + 17:pos + 33]
+            attributeFlags_data = line.decode('utf-8')[pos + 17:pos + 33]
             print("Attribute flags for partition \"Data\": " + attributeFlags_data)
             break
     print("NOTE: These following operations won't write to disk at this moment.")
@@ -130,16 +131,17 @@ def partitionDevice_stage1(osInfo: osinfo.OSInfo, shell, storage: int, key, iv):
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)
-        if line:
+        if line or line.endswith(b'# '):
             break
     print(line.decode('utf-8'))
     shell.send("fsck_hfs -q /dev/disk0s1s2")
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)
-        if line:
+        if line or line.endswith(b'# '):
             break
     print(line.decode('utf-8'))
+    print("Stage 1 succeed.")
 
 
 def partitionDevice_stage2(sshClient: paramiko.SSHClient):
@@ -246,13 +248,13 @@ def partitionDevice_stage2(sshClient: paramiko.SSHClient):
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)
-        if line:
+        if line or line.endswith(b'# '):
             break
     print(line.decode('utf-8'))
     shell.send("fsck_hfs -q /dev/disk0s1s2")
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)
-        if line:
+        if line or line.endswith(b'# '):
             break
     print(line.decode('utf-8'))

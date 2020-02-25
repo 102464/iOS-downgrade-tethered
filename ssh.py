@@ -42,7 +42,7 @@ def startUsbmuxd():
 
 def startHTTPServer():
     os.system("cd " + os.path.abspath("./debs") + "; " +
-              "nohup python -m http.server & >/dev/null 2>&1")
+              "nohup python3 -m http.server & >/dev/null 2>&1")
     print("Waiting for HTTP Server to start. Please wait for 5 seconds...")
     time.sleep(5)
 
