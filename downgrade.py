@@ -187,13 +187,13 @@ print("Next we will decrypt firmware files. Your screen will display a lot of te
 print("That's normal! When finished, you need to connect your device with a USB cable.")
 input("ENTER to continue!")
 ioscrypto.decryptImg3(osInfo, "firmware/Firmware/all_flash*/all_flash*/applelogo*.img3",
-                      "applelogo", keys['applelogo'], ivs['applelogo'], True)
+                      "applelogo", keys['applelogo'], ivs['applelogo'], False)
 ioscrypto.decryptImg3(osInfo, "firmware/Firmware/dfu/iBSS.*.dfu", "iBSS", keys['ibss'], ivs['ibss'])
 ioscrypto.decryptImg3(osInfo, "firmware/Firmware/dfu/iBEC.*.dfu", "iBEC", keys['ibec'], ivs['ibec'])
 ioscrypto.decryptImg3(osInfo, "firmware/Firmware/all_flash*/all_flash*/DeviceTree.*.img3",
-                      "DeviceTree", keys['devicetree'], ivs['devicetree'], True)
+                      "DeviceTree", keys['devicetree'], ivs['devicetree'], False)
 ioscrypto.decryptImg3(osInfo, "firmware/kernelcache.release.*", "kernelcache",
-                      keys['kernelcache'], ivs['kernelcache'], True)
+                      keys['kernelcache'], ivs['kernelcache'], False)
 
 print("Reading Restore.plist")
 plist = readPlist("firmware/Restore.plist")
@@ -202,12 +202,12 @@ print("RootFS: " + rootfsfile)
 print("Decrypting RootFileSystem")
 ioscrypto.decryptRootFS(osInfo, "firmware/" + rootfsfile, keys['rootfs'])
 print("iBoot32Patcher: Patching iBSS")
-iboot.patch_iBoot(osInfo, "iBSS", "iBSS.x")
+iboot.patch_iBoot(osInfo, "iBSS", "pwnediBSS")
 print("iBoot32Patcher: Patching iBEC")
 iboot.patch_iBoot(osInfo, "iBEC", "iBEC.x", "rd=disk0s1s1 -v cs_enforcement_disable=1 amfi_get_out_of_my_way=1")
 print("Repacking iBSS and iBEC")
-ioscrypto.repackImg3(osInfo, "iBSS.x", "pwnediBSS", "firmware/Firmware/dfu/iBSS.*.dfu")
-ioscrypto.repackImg3(osInfo, "iBEC.x", "pwnediBEC", "firmware/Firmware/dfu/iBEC.*.dfu")
+# ioscrypto.repackImg3(osInfo, "iBSS.x", "pwnediBSS", "ibss") iBSS don't need to be repacked.
+ioscrypto.repackImg3(osInfo, "iBEC.x", "pwnediBEC", "ibec")
 print("Part II already prepared.")
 
 print("                   PART III                       ")
@@ -230,7 +230,7 @@ sshClient = ssh.connect()
 print("Please remove passcode lock before continue. Passcode may cause bootloop on this device.")
 input("ENTER TO CONTINUE.")
 print("Backing up keybag.")
-'''
+
 ssh.scp_get_file(sshClient, "/var/keybags/systembag.kb", "systembag.kb")
 print("Sending iOS 7.1.2 firmware. This may need a long time...")
 ssh.scp_transfer_file(sshClient, os.path.basename(firmware712),
@@ -250,7 +250,7 @@ while True:
 print("Device should automatically reboots. Wait 60 seconds...")
 time.sleep(60)
 input("Start SSH Service and ENTER TO CONTINUE")
-'''
+
 print("---[Waiting for connection]---")
 sshClient = ssh.connect()
 shell = sshClient.invoke_shell()
