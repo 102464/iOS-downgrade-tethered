@@ -41,5 +41,6 @@ def startDowngrade(osInfo: osinfo.OSInfo, version, storage: int, sshClient: para
 
 if __name__ == "__main__":
     print("This is Device Support for iPad3,1. It cannot be directly executed.")
+    print("Please run ./downgrade.py please.")
     print("Exiting")
     exit(1)

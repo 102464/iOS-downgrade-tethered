@@ -21,6 +21,12 @@ see also: [https://github.com/Benfxmth/a5-a6-tethered-ios-downgrade-bash-scripts
 
 Run ./downgrade.py and follow the on-screen instructions.
 
+### TODO
+
+Future plans: 
++ Jailbreak support 
++ Add support for iPhone 4S (iPhone4,1)
+
 ### Credits
 
 @planetbeing for dmg [https://github.com/planetbeing/xpwn](https://github.com/planetbeing/xpwn) <br />

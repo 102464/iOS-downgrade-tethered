@@ -7,7 +7,7 @@ def waitForConnection(osInfo: osinfo.OSInfo):
     print("Waiting for DFU/Recovery connection. Please unplug and replug your device.")
     while True:
         res = os.system("./tools/" + osInfo.getosplatform() + "/irecovery -c /exit")
-        if res:
+        if res == 0:
             break
     print("Device has successfully connected.")
 
@@ -17,7 +17,7 @@ def send_iBEC(osInfo: osinfo.OSInfo, path):
     x = 1
     while True:
         res = os.system("./tools/" + osInfo.getosplatform() + "/irecovery -f " + path)
-        if res:
+        if res == 0:
             break
         print("Failed to send iBEC! Retrying....")
         if x == 5:
