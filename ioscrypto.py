@@ -73,27 +73,27 @@ def getKeyAndIV(firmwareversion, deviceidentifier):
     return keydict, ivdict
 
 
-def decryptImg3(osInfo: osinfo.OSInfo, path, destination, key, iv, decryptFlag: bool = False):
-    if decryptFlag:
-        flag = " -decrypt"
+def decryptImg3(osInfo: osinfo.OSInfo, path, destination, key, iv, extractrawdata: bool = False):
+    if extractrawdata:
+        flag = " -r"
     else:
         flag = ""
     os.system("cd " + os.path.abspath("") + "; " +
-              "./tool/" + osInfo.getosplatform() + "/xpwntool " + path + " " +
+              "./tools/" + osInfo.getosplatform() + "/reimagine" + path + " " +
               destination + " " + " -k " + key +
               " -iv " + iv + flag)
 
 
-def repackImg3(osInfo: osinfo.OSInfo, path, destination, template):
+def repackImg3(osInfo: osinfo.OSInfo, path, destination, tag):
     os.system("cd " + os.path.abspath("") + "; " +
-              "./tool/" + osInfo.getosplatform() + "/xpwntool " + path + " " +
-              destination + " -t " + template)
+              "./tools/" + osInfo.getosplatform() + "/image3maker -t " + tag + " -f " + path + " -o " +
+              destination)
 
 
 def decryptRootFS(osInfo: osinfo.OSInfo, path, key):
     newfile = os.path.basename(path).split(".")[0] + ".decrypted.dmg"
     os.system("cd " + os.path.abspath(".") + "; " +
-              "./tool/" + osInfo.getosplatform() + "/dmg extract " + path + " " +
+              "./tools/" + osInfo.getosplatform() + "/dmg extract " + path + " " +
               newfile + " -k " + key)
     if osInfo.getosplatform() == "macosx":
         print("hdiutil: converting format")
@@ -109,6 +109,6 @@ def decryptRootFS(osInfo: osinfo.OSInfo, path, key):
     if osInfo.getosplatform() == "linux" or osInfo.getosplatform() == "windows":
         print("dmg: converting image")
         os.system("cd " + os.path.abspath(".") + "; " +
-                  "./tool/" + osInfo.getosplatform() + "/dmg build " + newfile + " " + os.path.basename(path))
+                  "./tools/" + osInfo.getosplatform() + "/dmg build " + newfile + " " + os.path.basename(path))
         print("WARNING: on linux or windows there will not be an image scan.")
         print("         please make sure image is not corrupted.            ")
