@@ -13,7 +13,7 @@ def send_kloader_and_iBSS_iBEC(sshClient: paramiko.SSHClient):
     print("Sending iBEC")
     ssh.scp_transfer_file(sshClient, os.path.abspath(".") + "/pwnediBEC", "/mnt1/pwnediBEC")
     print("Sending kloader")
-    ssh.scp_transfer_file(sshClient, os.path.abspath(".") + "/tool/kloader", "/mnt1/kloader")
+    ssh.scp_transfer_file(sshClient, os.path.abspath(".") + "/tools/kloader", "/mnt1/kloader")
 
 
 def createMountPoint(shell, mountpoint):
@@ -71,7 +71,7 @@ def unmountDevice(shell, mountpoint):
 
 
 def kloader_iBSS(shell):
-    shell.send("/mnt")
+    shell.send("/mnt1/kloader /mnt1/pwnediBSS")
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)
