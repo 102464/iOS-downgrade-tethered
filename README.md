@@ -17,13 +17,17 @@ Currently supported device is iPad3,1. Supported iOS is iOS 7-9.1. More will add
 #### If your device is supported by checkm8 exploitation tool (such as [ipwndfu](https://github.com/axi0mX/ipwndfu)), maybe you can still boot even you have powered off your device.
 see also: [https://github.com/Benfxmth/a5-a6-tethered-ios-downgrade-bash-scripts](https://github.com/Benfxmth/a5-a6-tethered-ios-downgrade-bash-scripts)
 
+### Usage
+
+Run ./downgrade.py and follow the on-screen instructions.
+
 ### Credits
 
-Thank @planetbeing for dmg [https://github.com/planetbeing/xpwn](https://github.com/planetbeing/xpwn) <br />
-Thank @westbaer for irecovery [https://github.com/westbaer/irecovery](https://github.com/westbaer/irecovery) <br />
-Thank @nyansatan for dualbootstuff [https://github.com/nyansatan/nyansatan.github.io](https://github.com/nyansatan/nyansatan.github.io) <br />
-Thank @Benfxmth for downgrade method and script [https://github.com/Benfxmth/a5-a6-tethered-ios-downgrade-bash-scripts](https://github.com/Benfxmth/a5-a6-tethered-ios-downgrade-bash-scripts) <br />
-Thank @iH8Sn0w for iBoot32Patcher [https://github.com/iH8sn0w/iBoot32Patcher](https://github.com/iH8sn0w/iBoot32Patcher) <br />
-Thank @JonathanSeals for CoolBooter [https://coolbooter.com](https://coolbooter.com) <br />
-Thank @winocm for kloader [https://twitter.com/winocm](https://twitter.com/winocm)
-# Now this project is under DEVELOPMENT. It is UNFINISHED. Do not use it at the moment.
+@planetbeing for dmg [https://github.com/planetbeing/xpwn](https://github.com/planetbeing/xpwn) <br />
+@westbaer for irecovery [https://github.com/westbaer/irecovery](https://github.com/westbaer/irecovery) <br />
+@nyansatan for dualbootstuff [https://github.com/nyansatan/nyansatan.github.io](https://github.com/nyansatan/nyansatan.github.io) <br />
+@Benfxmth for downgrade method and script [https://github.com/Benfxmth/a5-a6-tethered-ios-downgrade-bash-scripts](https://github.com/Benfxmth/a5-a6-tethered-ios-downgrade-bash-scripts) <br />
+@iH8Sn0w for iBoot32Patcher [https://github.com/iH8sn0w/iBoot32Patcher](https://github.com/iH8sn0w/iBoot32Patcher) <br />
+@JonathanSeals for CoolBooter [https://coolbooter.com](https://coolbooter.com) <br />
+@winocm for kloader [https://twitter.com/winocm](https://twitter.com/winocm)
+## Although this project is completed, it has not been tested, so maybe it has some <font color=#FF0000>CRITICAL</font> bugs. so this is for testing purposes only. Do not use it on your device. 

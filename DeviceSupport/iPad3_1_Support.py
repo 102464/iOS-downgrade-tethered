@@ -5,7 +5,7 @@ import time
 
 import osinfo
 
-from DeviceSupport.iPad3_1 import partition, restore, setup
+from DeviceSupport.iPad3_1 import partition, restore, setup, recovery
 
 
 def startDowngrade(osInfo: osinfo.OSInfo, version, storage: int, sshClient: paramiko.SSHClient, keys, ivs):
@@ -31,6 +31,12 @@ def startDowngrade(osInfo: osinfo.OSInfo, version, storage: int, sshClient: para
     setup.mountDevice(shell, "/dev/disk0s1s2", "/mnt2")
     setup.fixupvar(shell)
     setup.copyfstab(shell)
+    setup.send_kloader_and_iBSS_iBEC(sshClient)
+    setup.kloader_iBSS(shell)
+    sshClient.close()
+    recovery.waitForConnection()
+    recovery.send_iBEC(osinfo, "pwnediBEC")
+    recovery.tether_boot_up_device()
 
 
 if __name__ == "__main__":

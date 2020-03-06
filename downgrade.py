@@ -206,7 +206,7 @@ iboot.patch_iBoot(osInfo, "iBSS", "pwnediBSS")
 print("iBoot32Patcher: Patching iBEC")
 iboot.patch_iBoot(osInfo, "iBEC", "iBEC.x", "rd=disk0s1s1 -v cs_enforcement_disable=1 amfi_get_out_of_my_way=1")
 print("Repacking iBSS and iBEC")
-# ioscrypto.repackImg3(osInfo, "iBSS.x", "pwnediBSS", "ibss") iBSS don't need to be repacked.
+# ioscrypto.repackImg3(osInfo, "iBSS.x", "pwnediBSS", "ibss") iBSS doesn't need to be repacked.
 ioscrypto.repackImg3(osInfo, "iBEC.x", "pwnediBEC", "ibec")
 print("Part II already prepared.")
 
@@ -247,8 +247,8 @@ while True:
     print(line.decode('utf-8'))
     if line == b'':
         break
-print("Device should automatically reboots. Wait 60 seconds...")
-time.sleep(60)
+print("Device should automatically reboots. Wait 80 seconds...")
+time.sleep(80)
 input("Start SSH Service and ENTER TO CONTINUE")
 
 print("---[Waiting for connection]---")
@@ -263,7 +263,8 @@ while True:
     print(line.decode('utf-8'))
     if line == b'':
         print("multi_kloader ends")
-        print("Device should boot in verbose mode.")
+        print("Device should boot in verbose mode. If not, press any hardware button "
+              "(like home button).")
         break
 sshClient.close()
 print("Waiting for a minute for your device to start...")
@@ -278,17 +279,25 @@ ssh.killPort(8000)
 print("--[Waiting for connection]---")
 sshClient = ssh.connect()
 
-print("DANGER! You have entered the most dangerous part.")
-print("We will partition this device and restore the firmware")
-print("to device. The device may be bricked any time and cannot")
-print("be recovered. If your device bricks or entered bootloop,")
-print("please manually let your device enter DFU mode, and restore")
-print("it using iTunes.")
-print("Your data will ALL LOST after downgrading with this tool!")
+print("+----------------------------[ D A N G E R ]----------------------------+")
+print("| DANGER! You have entered the most dangerous part.                     |")
+print("| We will partition this device and restore the firmware                |")
+print("| to device. The device may be bricked at any time and data cannot      |")
+print("| be recovered. If your device bricks or entered boot loop,             |")
+print("| please manually let your device enter DFU mode, and restore           |")
+print("| it using iTunes.                                                      |")
+print("| Your data will ALL LOST after downgrading with this tool!             |")
+print("+-----------------------------------------------------------------------+")
 print("")
-
 input("ENTER TO CONTINUE. Ctrl-C to abort.")
 
 if deviceidentifier == 'iPad3,1':
     from DeviceSupport import iPad3_1_Support
+    print("Starting downgrade process.")
     iPad3_1_Support.startDowngrade(osInfo, firmwareversion, storage, sshClient, keys, ivs)
+
+print("Congratulations, Your device has been successfully booted.")
+print(" ENJOY YOUR DOWNGRADED DEVICE!")
+print(" ---[END]---")
+
+exit(0)
