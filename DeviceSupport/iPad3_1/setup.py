@@ -7,17 +7,14 @@ import paramiko
 import ssh
 
 
-def send_kloader_and_iBSS_iBEC(sshClient: paramiko.SSHClient):
+def send_iBSS(sshClient: paramiko.SSHClient):
     print("Sending iBSS")
     ssh.scp_transfer_file(sshClient, os.path.abspath(".") + "/pwnediBSS", "/mnt1/pwnediBSS")
-    print("Sending iBEC")
-    ssh.scp_transfer_file(sshClient, os.path.abspath(".") + "/pwnediBEC", "/mnt1/pwnediBEC")
-    print("Sending kloader")
-    ssh.scp_transfer_file(sshClient, os.path.abspath(".") + "/tools/kloader", "/mnt1/kloader")
 
 
 def createMountPoint(shell, mountpoint):
-    shell.send("mkdir " + mountpoint)
+    print("Creating mount point " + mountpoint)
+    shell.send("mkdir " + mountpoint + "\n")
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)
@@ -26,25 +23,30 @@ def createMountPoint(shell, mountpoint):
 
 
 def mountDevice(shell, device, mountpoint):
-    shell.send("mount -t hfs " + device + " " + mountpoint)
+    print("Mounting " + mountpoint)
+    shell.send("mount_hfs " + device + " " + mountpoint + "\n")
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)
+        print(line.decode('utf-8'))
         if line or line.endswith(b'# '):
             break
 
 
 def fixupvar(shell):
-    shell.send("mv -v /mnt1/private/var/* /mnt2")
+    print("Fixing up /var")
+    shell.send("mv -v /mnt1/private/var/* /mnt2\n")
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)
-        if line or line.endswith(b'# '):
+        print(line.decode('utf-8'))
+        if line.endswith(b'# '):
             break
 
 
 def copyfstab(shell):
-    shell.send("cp /var/fstab /mnt1/private/etc/fstab")
+    print("Copying fstab to partition.")
+    shell.send("cp /var/fstab /mnt1/private/etc/fstab\n")
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)
@@ -53,7 +55,8 @@ def copyfstab(shell):
 
 
 def copyfstab_toSecOS(shell):
-    shell.send("cp /mnt1/private/etc/fstab /var/fstab")
+    print("Copying fstab.")
+    shell.send("cp /mnt1/private/etc/fstab /var/fstab\n")
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)
@@ -62,7 +65,8 @@ def copyfstab_toSecOS(shell):
 
 
 def unmountDevice(shell, mountpoint):
-    shell.send("unmount " + mountpoint)
+    print("Unmounting " + mountpoint)
+    shell.send("umount " + mountpoint + "\n")
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)
@@ -70,8 +74,21 @@ def unmountDevice(shell, mountpoint):
             break
 
 
+def send_keybag(sshClient: paramiko.SSHClient):
+    print("Sending keybag.")
+    shell = sshClient.invoke_shell()
+    shell.send("mkdir /mnt2/keybags\n")
+    while True:
+        time.sleep(0.5)
+        line = shell.recv(1024)
+        if line or line.endswith(b'# '):
+            break
+    ssh.scp_transfer_file(sshClient, "systembag.kb", "/mnt2/keybags/systembag.kb")
+
+
 def kloader_iBSS(shell):
-    shell.send("/mnt1/kloader /mnt1/pwnediBSS")
+    print("kloader iBSS!")
+    shell.send("/mnt1/kloader /mnt1/pwnediBSS\n")
     while True:
         time.sleep(0.5)
         line = shell.recv(1024)

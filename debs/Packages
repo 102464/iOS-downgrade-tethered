@@ -1,3 +1,20 @@
+Package: com.MyWorkstation.MakeItTethered
+Version: 0.1-1
+Architecture: iphoneos-arm
+Depends: firmware (>= 5.0), mobilesubstrate
+Filename: ./com.MyWorkstation.MakeItTethered_0.1-1_iphoneos-arm.deb
+Size: 44240
+MD5sum: 8fd931ce7e17fcd35323c150cbfdb017
+SHA1: d38288363c604d0385804414791c8a649de0714c
+SHA256: b84147cb4552d964d857b9f1e27cbfcd0047d96af2908fd2d88913b39e85951f
+Section: Tweaks
+Priority: important
+Homepage: https://github.com/102464/iOS-downgrade-tethered
+Description: This tweak will automatically load iBSS using kloader when you are powering down your device. It is helpful for anyone who has downgraded their device using iOS-downgrade-tethered tool.
+Author: 102464
+Depiction: <html><body><font color=red>NOTE THIS PACKAGE WILL NOT WORK IN SAFE MODE! DO NOT POWER OFF YOUR DEVICE IN SAFE MODE!</font></body></html>
+Name: MakeItTethered
+
 Package: com.coolbooter.coolbootercli
 Version: 0.8.2-release
 Architecture: iphoneos-arm
@@ -28,6 +45,57 @@ Description: Dualboot tools
 Author: @danzatt, @winocm, @xerub, @JonathanSeals, @axi0mX, @Apple, @comex, Roderick W. Smith, people behind iphone-dataprotection project, @nyan_satan
 Depiction: http://nyansatan.github.io/apt/depictions/dualbootstuff.html
 Name: dualbootstuff
+
+Package: diskdev-cmds
+Version: 421.7-4
+Architecture: iphoneos-arm
+Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
+Installed-Size: 848
+Pre-Depends: dpkg (>= 1.14.25-8)
+Depends: firmware-sbin
+Filename: ./diskdev-cmds_421.7-4_iphoneos-arm.deb
+Size: 114822
+MD5sum: 2211d78fb6bede91ba9004aad776eacf
+SHA1: 57017a698fa3ecaac06b2a1d5dbb41b8eb206bfd
+SHA256: b5d7a6f34ce77182faaa0f2de90b348497c9c1aa66a5472cc813616c01244a88
+Section: System
+Priority: required
+Description: mount, quota, fsck, fstyp, fdisk, tunefs
+
+Package: gettext
+Version: 0.17-7
+Architecture: iphoneos-arm
+Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
+Installed-Size: 3336
+Pre-Depends: dpkg (>= 1.14.25-8)
+Depends: ncurses
+Filename: ./gettext_0.17-7_iphoneos-arm.deb
+Size: 768352
+MD5sum: 9e48b67c077de8eff4ab17e2008a157a
+SHA1: f237be39156e580a56372e6319c213be09b1f77e
+SHA256: bb58396c9323b3d72e4526d9e1266c453a3000a0b0c6b12aff61b602e451427a
+Section: System
+Priority: optional
+Homepage: http://www.gnu.org/software/gettext/
+Description: internationalization helper for strings
+
+Package: ldid
+Version: 610-5
+Architecture: iphoneos-arm
+Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
+Installed-Size: 92
+Pre-Depends: dpkg (>= 1.14.25-8)
+Depends: odcctools
+Filename: ./ldid_610-5_iphoneos-arm.deb
+Size: 13804
+MD5sum: 3e03b4f68f7f7d17b479cbf2f76aedce
+SHA1: 8bdfe89a023fa5b19ba64cab3438d16850a802e4
+SHA256: 9330a1de783cccce2b66d1c0b4ca9c649c5664847533990132389bd53b93ce53
+Section: Development
+Priority: optional
+Description: pseudo-codesign Mach-O files
+Depiction: http://cydia.saurik.com/info/ldid/
+Name: Link Identity Editor
 
 Package: openssh
 Version: 6.7p1-13
@@ -62,4 +130,83 @@ Section: Security
 Priority: standard
 Description: SSL library and cryptographic tools
 Name: OpenSSL
+
+Package: png
+Version: 1.2.24-3
+Architecture: iphoneos-arm
+Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
+Installed-Size: 692
+Filename: ./png_1.2.24-3_iphoneos-arm.deb
+Size: 259150
+MD5sum: dc0f2be05c709d4c248ce643b8ab1909
+SHA1: a92bf82c52d869a711e989955c8fb28920b6b9dc
+SHA256: d8f21fff0d6e0ed012b19283356c61bbb27ecd00db59fa279179bb2eda01e20b
+Section: Multimedia
+Priority: optional
+Description: library for manipulating PNG files
+
+Package: unzip
+Version: 5.52-6
+Architecture: iphoneos-arm
+Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
+Installed-Size: 428
+Pre-Depends: dpkg (>= 1.14.25-8)
+Filename: ./unzip_5.52-6_iphoneos-arm.deb
+Size: 95822
+MD5sum: 326830d4b5e67d6bc2fc25b6c4a71baa
+SHA1: 313cbc1e164f2816cd202dec91a9c266505db259
+SHA256: 04329d078f3394dbb72abe9f19c893a178ecc22704342efbedf0c9021a9cbdf8
+Section: Archiving
+Priority: important
+Description: de-compesses files in zip format
+
+Package: wget
+Version: 1.16-4
+Architecture: iphoneos-arm
+Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
+Installed-Size: 480
+Pre-Depends: dpkg (>= 1.14.25-8)
+Depends: gettext, openssl
+Filename: ./wget_1.16-4_iphoneos-arm.deb
+Size: 210290
+MD5sum: 9221072b359a2c526e0f07467d30cc10
+SHA1: 784a5c74d502f51c2bd0f8278315e99aa196b49d
+SHA256: e35a50a6e4d9be59c46b822062c2aead1fe48512bb2fd4b6c8e646b8de08bd64
+Section: Networking
+Priority: important
+Description: simple HTTP file transfer client
+
+Package: xpwn
+Version: 1247875200-1
+Architecture: iphoneos-arm
+Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
+Installed-Size: 468
+Pre-Depends: dpkg (>= 1.14.25-8)
+Depends: openssl, png
+Filename: ./xpwn_1247875200-1_iphoneos-arm.deb
+Size: 67870
+MD5sum: 45555ac749e5979fcfb2d5f630655ba3
+SHA1: 2a76a82c00a4549b877dd53c598a64793deaa493
+SHA256: e0d5cde22a02d865de64988302fa42c18bf058ed3dc6a8b31132f0d804da501d
+Section: Archiving
+Priority: optional
+Homepage: http://github.com/planetbeing/xpwn/tree/master
+Description: portable, barebones PwnageTool implementation
+Author: planetbeing <planetbeing@gmail.com>
+Name: XPwn
+
+Package: zip
+Version: 2.32-6
+Architecture: iphoneos-arm
+Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
+Installed-Size: 368
+Pre-Depends: dpkg (>= 1.14.25-8)
+Filename: ./zip_2.32-6_iphoneos-arm.deb
+Size: 58550
+MD5sum: 1eebf2ba9ab0dc7cf445bf7cba0fa49e
+SHA1: 8925200a7cbf25852f5d6d45346be7dfeba26779
+SHA256: b2fa431b03ffd2f926dc4972c684c90c8a5f63af92b2674f634252d26c717d19
+Section: Archiving
+Priority: important
+Description: standard Windows compression tool
 

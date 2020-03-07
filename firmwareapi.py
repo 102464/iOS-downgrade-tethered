@@ -12,4 +12,3 @@ def getfirmwarejson(deviceidentifier):
             code.write(f.read())
     else:
         print("API: file \"firmware-api.json\" already exists. Please remove for update.")
-

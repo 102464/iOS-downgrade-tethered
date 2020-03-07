@@ -26,31 +26,31 @@ def getKeyAndIV(firmwareversion, deviceidentifier):
     KeyTypes = JClass("KeyTypes")
     utils_class = Utils()
     print("iOSUtils: Getting iBSS key for version " + firmwareversion + ", device " + deviceidentifier)
-    ibss_key = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.IBSS).getKey()
+    ibss_key = str(utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.IBSS).getKey())
     print("iOSUtils: Getting iBEC key for version " + firmwareversion + ", device " + deviceidentifier)
-    ibec_key = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.IBEC).getKey()
+    ibec_key = str(utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.IBEC).getKey())
     print("iOSUtils: Getting AppleLogo key for version " + firmwareversion + ", device " + deviceidentifier)
-    applelogo_key = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.APPLE_LOGO).getKey()
+    applelogo_key = str(utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.APPLE_LOGO).getKey())
     print("iOSUtils: Getting DeviceTree key for version " + firmwareversion + ", device " + deviceidentifier)
-    devicetree_key = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.DEVICETREE).getKey()
+    devicetree_key = str(utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.DEVICETREE).getKey())
     print("iOSUtils: Getting RestoreRamdisk key for version " + firmwareversion + ", device " + deviceidentifier)
-    restoreramdisk_key = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.RESTORE_RD).getKey()
+    restoreramdisk_key = str(utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.RESTORE_RD).getKey())
     print("iOSUtils: Getting kernelcache key for version " + firmwareversion + ", device " + deviceidentifier)
-    kernelcache_key = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.KERNELCACHE).getKey()
+    kernelcache_key = str(utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.KERNELCACHE).getKey())
     print("iOSUtils: Getting RootFS key for version " + firmwareversion + ", device " + deviceidentifier)
-    rootfs_key = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.ROOTFS).getKey()
+    rootfs_key = str(utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.ROOTFS).getKey())
     print("iOSUtils: Getting iBSS IV for version " + firmwareversion + ", device " + deviceidentifier)
-    ibss_iv = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.IBSS).getIv()
+    ibss_iv = str(utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.IBSS).getIv())
     print("iOSUtils: Getting iBEC IV for version " + firmwareversion + ", device " + deviceidentifier)
-    ibec_iv = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.IBEC).getIv()
+    ibec_iv = str(utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.IBEC).getIv())
     print("iOSUtils: Getting AppleLogo IV for version " + firmwareversion + ", device " + deviceidentifier)
-    applelogo_iv = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.APPLE_LOGO).getIv()
+    applelogo_iv = str(utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.APPLE_LOGO).getIv())
     print("iOSUtils: Getting DeviceTree IV for version " + firmwareversion + ", device " + deviceidentifier)
-    devicetree_iv = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.DEVICETREE).getIv()
+    devicetree_iv = str(utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.DEVICETREE).getIv())
     print("iOSUtils: Getting RestoreRamdisk IV for version " + firmwareversion + ", device " + deviceidentifier)
-    restoreramdisk_iv = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.RESTORE_RD).getIv()
+    restoreramdisk_iv = str(utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.RESTORE_RD).getIv())
     print("iOSUtils: Getting kernelcache IV for version " + firmwareversion + ", device " + deviceidentifier)
-    kernelcache_iv = utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.KERNELCACHE).getIv()
+    kernelcache_iv = str(utils_class.getKeyFor(deviceidentifier, firmwareversion, KeyTypes.KERNELCACHE).getIv())
     print("          iBSS Key: " + ibss_key)
     print("                IV: " + ibss_iv)
     print("          iBEC Key: " + ibec_key)
@@ -79,7 +79,7 @@ def decryptImg3(osInfo: osinfo.OSInfo, path, destination, key, iv, extractrawdat
     else:
         flag = ""
     os.system("cd " + os.path.abspath("") + "; " +
-              "./tools/" + osInfo.getosplatform() + "/reimagine" + path + " " +
+              "./tools/" + osInfo.getosplatform() + "/reimagine " + path + " " +
               destination + " " + " -k " + key +
               " -iv " + iv + flag)
 
@@ -91,14 +91,14 @@ def repackImg3(osInfo: osinfo.OSInfo, path, destination, tag):
 
 
 def decryptRootFS(osInfo: osinfo.OSInfo, path, key):
-    newfile = os.path.basename(path).split(".")[0] + ".decrypted.dmg"
+    newfile = str(os.path.basename(path).split(".")[0] + ".decrypted.dmg")
     os.system("cd " + os.path.abspath(".") + "; " +
               "./tools/" + osInfo.getosplatform() + "/dmg extract " + path + " " +
               newfile + " -k " + key)
     if osInfo.getosplatform() == "macosx":
-        print("hdiutil: converting format")
+        print("dmg: converting format")
         os.system("cd " + os.path.abspath(".") + "; " +
-                  "hdiutil convert -format UDZO -o RootFilesystem.dmg " + newfile)
+                  "./tools/" + osInfo.getosplatform() + "/dmg build " + newfile + " RootFilesystem.dmg")
         print("ASR: Scanning image")
         ret = os.system("cd " + os.path.abspath(".") + "; " +
                         "asr -imagescan RootFilesystem.dmg")

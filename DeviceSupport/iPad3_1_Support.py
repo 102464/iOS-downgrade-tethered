@@ -16,27 +16,30 @@ def startDowngrade(osInfo: osinfo.OSInfo, version, storage: int, sshClient: para
         if line:
             break
     print("Device Support for iPad3,1 version iOS " + version + " started")
-    setup.createMountPoint("/mnt1")
-    setup.createMountPoint("/mnt2")
+    setup.createMountPoint(shell, "/mnt1")
+    setup.createMountPoint(shell, "/mnt2")
     setup.mountDevice(shell, "/dev/disk0s1s1", "/mnt1")
     setup.copyfstab_toSecOS(shell)
-    setup.unmountDevice("/mnt1")
+    setup.unmountDevice(shell, "/mnt1")
     partition.partitionDevice_stage1(osInfo, shell, storage, keys['restoreRamdisk'], ivs['restoreRamdisk'])
     restore.formatData(shell)
     restore.formatSystem(shell)
     restore.restore(sshClient, "RootFileSystem.dmg", "/dev/disk0s1s1")
+    # The code below hasn't been tested yet. Please stop at here!
     restore.scanPartition(shell, "/dev/disk0s1s1")
-    partition.partitionDevice_stage2(sshClient)
     setup.mountDevice(shell, "/dev/disk0s1s1", "/mnt1")
     setup.mountDevice(shell, "/dev/disk0s1s2", "/mnt2")
     setup.fixupvar(shell)
     setup.copyfstab(shell)
-    setup.send_kloader_and_iBSS_iBEC(sshClient)
+    setup.send_keybag(sshClient)
+    setup.send_iBSS(sshClient)
+    partition.partitionDevice_stage2(sshClient)
+    partition.delete_partitions(shell)
     setup.kloader_iBSS(shell)
     sshClient.close()
-    recovery.waitForConnection()
-    recovery.send_iBEC(osinfo, "pwnediBEC")
-    recovery.tether_boot_up_device()
+    recovery.waitForConnection(osInfo)
+    recovery.send_iBEC(osInfo, "pwnediBEC")
+    recovery.tether_boot_up_device(osInfo)
 
 
 if __name__ == "__main__":

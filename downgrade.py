@@ -88,6 +88,7 @@ else:
 
 print(" ID         SUPPORTED DEVICE LIST                 ")
 print(" 1                iPad3,1                         ")
+deviceidentifier = ""
 devicenum = input("Enter ID: ")
 if devicenum == "1":
     deviceidentifier = "iPad3,1"
@@ -100,6 +101,7 @@ print(" 2                    32G                         ")
 print(" 3                    64G                         ")
 print(" 4                   128G                         ")
 storageid = input("Enter ID: ")
+storage = 0
 if storageid == "1":
     print("Warning! 16G devices is reported that it may have issues about free space.")
     print("         So we suggest that you should erase all data on your device.")
@@ -131,6 +133,7 @@ print("API: Getting firmware information.")
 totalnum = len(data['firmwares'])
 print("API: total " + str(totalnum) + " firmwares")
 print(" ID               Firmware List                   ")
+num712 = 0
 for i in range(0, totalnum - 1):
     print(" " + str(i + 1) + "               " + data['firmwares'][i]['version'] + " (" +
           data['firmwares'][i]['buildid'] + ")")
@@ -173,7 +176,6 @@ firmware712 = data['firmwares'][num712]['url']
 md5sum712 = data['firmwares'][num712]['md5sum']
 if not os.path.exists(os.path.join(os.path.abspath("."), os.path.basename(firmware712))):
     downloader.download(firmware712)
-    # The code below hasn't been tested yet. Please stop at here!
 else:
     print("Firmware already exists!")
 downloader.checkHash(firmwarefile, md5sum)
@@ -195,31 +197,31 @@ ioscrypto.decryptImg3(osInfo, "firmware/Firmware/all_flash*/all_flash*/DeviceTre
                       "DeviceTree", keys['devicetree'], ivs['devicetree'], False)
 ioscrypto.decryptImg3(osInfo, "firmware/kernelcache.release.*", "kernelcache",
                       keys['kernelcache'], ivs['kernelcache'], False)
-
 print("Reading Restore.plist")
 plist = readPlist("firmware/Restore.plist")
 rootfsfile = plist['SystemRestoreImages']['User']
 print("RootFS: " + rootfsfile)
 print("Decrypting RootFileSystem")
 ioscrypto.decryptRootFS(osInfo, "firmware/" + rootfsfile, keys['rootfs'])
+# PROBLEMS: iBSS headers always corrupts (first 16 bytes)
+iboot.fix_iBSS()  # Fix the header of iBSS (first 16 bytes)
 print("iBoot32Patcher: Patching iBSS")
 iboot.patch_iBoot(osInfo, "iBSS", "pwnediBSS")
 print("iBoot32Patcher: Patching iBEC")
 iboot.patch_iBoot(osInfo, "iBEC", "iBEC.x", "rd=disk0s1s1 -v cs_enforcement_disable=1 amfi_get_out_of_my_way=1")
-print("Repacking iBSS and iBEC")
+print("Repacking iBEC")
 # ioscrypto.repackImg3(osInfo, "iBSS.x", "pwnediBSS", "ibss") iBSS doesn't need to be repacked.
 ioscrypto.repackImg3(osInfo, "iBEC.x", "pwnediBEC", "ibec")
 print("Part II already prepared.")
-
 print("                   PART III                       ")
 ssh.killPort(2222)
 ssh.killPort(8000)
-
 ssh.setPassword(sshpass)
 ssh.setIPAndPort("127.0.0.1", "2222")
 ssh.setUsername("root")
 ssh.startUsbmuxd()
 ssh.startHTTPServer()
+
 ip = ssh.getMyIPAddress()
 print("Open Cydia, add source http://" + ip + ":8000, install OpenSSH and CoolBooter, then")
 print("please connect your device with a USB cable.")
@@ -233,7 +235,8 @@ input("ENTER TO CONTINUE.")
 print("Backing up keybag.")
 
 ssh.scp_get_file(sshClient, "/var/keybags/systembag.kb", "systembag.kb")
-print("Sending iOS 7.1.2 firmware. This may need a long time...")
+print("Sending iOS 6.1.3 firmware. This may need a long time...")
+sshClient.exec_command("mkdir /var/cbooter")
 ssh.scp_transfer_file(sshClient, os.path.basename(firmware712),
                       "/var/cbooter/" + os.path.basename(firmware712))
 print("CoolBooter: Installing iOS 7.1.2, please wait...")
@@ -273,17 +276,16 @@ time.sleep(60)
 print("End Part III.")
 print("                    PART IV                        ")
 ssh.startHTTPServer()
-print("Open Cydia, add source http://" + ip + ":8000, install OpenSSH and dualbootstuff.")
+print("Open Cydia, add source http://" + ip + ":8000, install OpenSSH, diskdev-cmds, and dualbootstuff.")
 input("Enter if finished. Ctrl-C to stop.")
 print("Stopping HTTP service.")
 ssh.killPort(8000)
 print("--[Waiting for connection]---")
 sshClient = ssh.connect()
-
 print("+----------------------------[ D A N G E R ]----------------------------+")
 print("| DANGER! You have entered the most dangerous part.                     |")
 print("| We will partition this device and restore the firmware                |")
-print("| to device. The device may be bricked at any time and data cannot      |")
+print("| to device. The device may BRICK at any time and data cannot           |")
 print("| be recovered. If your device bricks or entered boot loop,             |")
 print("| please manually let your device enter DFU mode, and restore           |")
 print("| it using iTunes.                                                      |")
@@ -298,7 +300,8 @@ if deviceidentifier == 'iPad3,1':
     iPad3_1_Support.startDowngrade(osInfo, firmwareversion, storage, sshClient, keys, ivs)
 
 print("Congratulations, Your device has been successfully booted.")
-print(" ENJOY YOUR DOWNGRADED DEVICE!")
-print(" ---[END]---")
+print("Note: If you want to enable \"Slide to power off\", Install MakeItTethered in debs/ directory.")
+print("ENJOY YOUR DOWNGRADED DEVICE!")
+print("---[END]---")
 
 exit(0)

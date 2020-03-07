@@ -1,4 +1,5 @@
 import os
+import time
 
 import osinfo
 
@@ -6,6 +7,7 @@ import osinfo
 def waitForConnection(osInfo: osinfo.OSInfo):
     print("Waiting for DFU/Recovery connection. Please unplug and replug your device.")
     while True:
+        time.sleep(2)
         res = os.system("./tools/" + osInfo.getosplatform() + "/irecovery -c /exit")
         if res == 0:
             break
@@ -29,6 +31,10 @@ def send_iBEC(osInfo: osinfo.OSInfo, path):
 
 def tether_boot_up_device(osInfo: osinfo.OSInfo):
     print("Trying to tether boot up device.")
+    print("Sending applelogo")
+    os.system("./tools/" + osInfo.getosplatform() + "/irecovery -c /send applelogo")
+    print("Setting applelogo")
+    os.system("./tools/" + osInfo.getosplatform() + "/irecovery -c setpicture")
     print("Sending DeviceTree")
     os.system("./tools/" + osInfo.getosplatform() + "/irecovery -c /send DeviceTree")
     print("Executing DeviceTree")
