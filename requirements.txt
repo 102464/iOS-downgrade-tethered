@@ -1,0 +1,6 @@
+jpype1
+paramiko
+scp
+biplist
+request
+tqdm

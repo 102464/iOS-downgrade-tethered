@@ -73,7 +73,7 @@ def getKeyAndIV(firmwareversion, deviceidentifier):
     return keydict, ivdict
 
 
-def decryptImg3(osInfo: osinfo.OSInfo, path, destination, key, iv, extractrawdata: bool = False):
+def decryptImg3(osInfo: osinfo.OSInfo, path, destination, key, iv, extractrawdata: bool = True):
     if extractrawdata:
         flag = " -r"
     else:

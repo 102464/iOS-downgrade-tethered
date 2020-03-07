@@ -19,7 +19,8 @@ see also: [https://github.com/Benfxmth/a5-a6-tethered-ios-downgrade-bash-scripts
 
 ### Usage
 
-Run ./downgrade.py and follow the on-screen instructions.
+Install requirements: `pip3 install -r requirements.txt` (Only supports python3)<br />
+Run `./downgrade.py` and follow the on-screen instructions.
 
 ### TODO
 
@@ -36,4 +37,4 @@ Future plans:
 @iH8Sn0w for iBoot32Patcher [https://github.com/iH8sn0w/iBoot32Patcher](https://github.com/iH8sn0w/iBoot32Patcher) <br />
 @JonathanSeals for CoolBooter [https://coolbooter.com](https://coolbooter.com) <br />
 @winocm for kloader [https://twitter.com/winocm](https://twitter.com/winocm)
-## Although this project is completed, it has not been tested, so maybe it has some <font color=#FF0000>CRITICAL</font> bugs. so this is for testing purposes only. Do not use it on your device. 
+## Although this project is completed, it has not been tested, so maybe it has some ***CRITICAL*** bugs. so this is for testing purposes only. Do not use it on your device.
