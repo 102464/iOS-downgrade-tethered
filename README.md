@@ -4,23 +4,28 @@ This is BETA software. This may boot loop or brick your device if you don't know
 # iOS-downgrade-tethered
 
 ### Description
-#### Downgrade methods from [here](https://www.reddit.com/r/jailbreak/comments/7v6pxu/release_tutorial_how_to_downgrade_any_32_bit)
+**Downgrade method from** [here](https://www.reddit.com/r/jailbreak/comments/7v6pxu/release_tutorial_how_to_downgrade_any_32_bit) <br />
 
-#### A simple downgrade script which can downgrade 32-bit devices to ANY version.
+A simple downgrade script which can downgrade 32-bit devices to ANY version. <br />
 
-Currently supported device is iPad3,1. Supported iOS is iOS 7-9.1. More will add in the future.
+Currently supported device is iPad3,1. Supported iOS is iOS 7-9.1. More will add in the future. <br />
 
-#### IMPORTANT: This tool does not use any BootROM exploits.
-#### Do not power off your device if you have downgraded your device using this tool. It will BRICK your device. 
-#### The only way to power off is: jailbreak your device, then run `./kloader pwnediBSS` in your shell.
+***IMPORTANT***: This tool does not use any BootROM exploits. <br />
+Do not power off your device if you have downgraded your device using this tool. It will **BRICK** your device. <br />
+The only way to power off is: jailbreak your device, then run `./kloader pwnediBSS` in your shell. <br />
 
-#### If your device is supported by checkm8 exploitation tool (such as [ipwndfu](https://github.com/axi0mX/ipwndfu)), maybe you can still boot even you have powered off your device.
-see also: [https://github.com/Benfxmth/a5-a6-tethered-ios-downgrade-bash-scripts](https://github.com/Benfxmth/a5-a6-tethered-ios-downgrade-bash-scripts)
+If your device is supported by checkm8 exploitation tool (such as [ipwndfu](https://github.com/axi0mX/ipwndfu)), maybe you can still boot even you have powered off your device. <br />
+see also: [https://github.com/Benfxmth/a5-a6-tethered-ios-downgrade-bash-scripts](https://github.com/Benfxmth/a5-a6-tethered-ios-downgrade-bash-scripts) <br />
 
 ### Usage
 
 Install requirements: `pip3 install -r requirements.txt` (Only supports python3)<br />
 Run `./downgrade.py` and follow the on-screen instructions.
+
+### Problems and Solutions
+
++ javax.net.ssl.SSLHandshakeException: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target <br />
+Solution: Run `javac InstallCert.java; java InstallCert theiphonewiki.com:80 changeit` and retry.
 
 ### TODO
 

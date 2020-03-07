@@ -12,7 +12,7 @@ def getKeyAndIV(firmwareversion, deviceidentifier):
                  convertStrings=False)
     java.lang.System.out.println("If you see this message, that means JVM works well.")
     print("iOSUtils: importing CA certificate")
-    java.lang.System.setProperty("javax.net.ssl.trustStore", "cacerts")
+    java.lang.System.setProperty("javax.net.ssl.trustStore", "jssecacerts")
     # Set keystore password
     java.lang.System.setProperty("javax.net.ssl.trustStorePassword", "changeit")
     # Set proxy settings (Chinese users may need that)

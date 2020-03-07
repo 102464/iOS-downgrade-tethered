@@ -173,6 +173,7 @@ firmware712 = data['firmwares'][num712]['url']
 md5sum712 = data['firmwares'][num712]['md5sum']
 if not os.path.exists(os.path.join(os.path.abspath("."), os.path.basename(firmware712))):
     downloader.download(firmware712)
+    # The code below hasn't been tested yet. Please stop at here!
 else:
     print("Firmware already exists!")
 downloader.checkHash(firmwarefile, md5sum)
