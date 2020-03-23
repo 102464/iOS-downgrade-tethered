@@ -2,7 +2,9 @@
 This is BETA software. This may boot loop or brick your device if you don't know what you're doing. 
 
 # iOS-downgrade-tethered
-
+## ***SORRY THIS PROGRAM IS NOT USABLE YET***
+This program is ***NOT USABLE***. The problem is that kloader reports `failed to get kernel_baseel base` or just stops working when doing the final step. The reason is unknown. **I am not able to find a fix currently**. Please use the tutorial (link provided in description) instead. <br />
+If someone has a fix please send me a [Pull Request](https://github.com/102464/iOS-downgrade-tethered/pulls).
 ### Description
 **Downgrade method from** [here](https://www.reddit.com/r/jailbreak/comments/7v6pxu/release_tutorial_how_to_downgrade_any_32_bit) <br />
 
