@@ -3,7 +3,7 @@ biplist==1.0.3
 certifi==2020.4.5.1
 cffi==1.14.0
 chardet==3.0.4
-cryptography==2.9.2
+cryptography==3.2
 get==2019.4.13
 idna==2.9
 JPype1==0.7.5
