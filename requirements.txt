@@ -7,7 +7,7 @@ cryptography==3.2
 get==2019.4.13
 idna==2.9
 JPype1==0.7.5
-paramiko==2.7.1
+paramiko==2.10.1
 post==2019.4.13
 public==2019.4.13
 pycparser==2.20
